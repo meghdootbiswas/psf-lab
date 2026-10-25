@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Interactive explainer: how wavelength, F-number and NA set the point spread function, the Airy disk and the resolution limit, from microscopes to EUV lithography.">
+<meta name="author" content="Meghdoot Biswas">
+
+<!-- Google Analytics (GA4): replace G-W1TF03952F with your Measurement ID in BOTH places below -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-W1TF03952F"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-W1TF03952F');
+</script>
+
+<title>PSF Lab</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..700&family=Roboto+Mono:wght@400;500&display=swap">
+<style>
+/* Material 3 scheme generated from a blue seed (#3F5F90 family). Light is the base; dark mirrors it.
+   Layout: a single column of large rounded surface cards, the M3 way: app bar + tabs on top,
+   each lesson a surface-container card holding a stage, its controls, and supporting text. */
+:root{
+  --primary:#3f5f90; --on-primary:#ffffff; --primary-container:#d6e3ff; --on-primary-container:#001b3d;
+  --secondary:#565f71; --secondary-container:#dae2f9; --on-secondary-container:#131c2b;
+  --tertiary:#705575; --tertiary-container:#fad8fd; --on-tertiary-container:#28132e;
+  --error:#ba1a1a; --error-container:#ffdad6; --on-error-container:#410002; --success:#1e8e3e; --success-container:#c4eed0;
+  --surface:#f9f9ff; --surface-lowest:#ffffff; --surface-low:#f3f3fa; --surface-container:#ededf4; --surface-high:#e7e8ee; --surface-highest:#e2e2e9;
+  --on-surface:#191c20; --on-surface-variant:#44474e; --outline:#74777f; --outline-variant:#c4c6cf;
+  --scrim:rgba(0,0,0,.32); --shadow1:0 1px 2px rgba(0,0,0,.3),0 1px 3px 1px rgba(0,0,0,.15); --shadow3:0 4px 8px 3px rgba(0,0,0,.15),0 1px 3px rgba(0,0,0,.3);
+  --font:"Roboto Flex","Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --mono:"Roboto Mono",ui-monospace,Menlo,Consolas,monospace;
+  --emph:cubic-bezier(.2,0,0,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --primary:#a8c8ff; --on-primary:#07305f; --primary-container:#254777; --on-primary-container:#d6e3ff;
+  --secondary:#bec6dc; --secondary-container:#3e4759; --on-secondary-container:#dae2f9;
+  --tertiary:#ddbce0; --tertiary-container:#573e5c; --on-tertiary-container:#fad8fd;
+  --error:#ffb4ab; --error-container:#93000a; --on-error-container:#ffdad6; --success:#81c995; --success-container:#0f5223;
+  --surface:#111318; --surface-lowest:#0c0e13; --surface-low:#191c20; --surface-container:#1d2024; --surface-high:#282a2f; --surface-highest:#33353a;
+  --on-surface:#e2e2e9; --on-surface-variant:#c4c6d0; --outline:#8e9099; --outline-variant:#44474e;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --primary:#a8c8ff; --on-primary:#07305f; --primary-container:#254777; --on-primary-container:#d6e3ff;
+  --secondary:#bec6dc; --secondary-container:#3e4759; --on-secondary-container:#dae2f9;
+  --tertiary:#ddbce0; --tertiary-container:#573e5c; --on-tertiary-container:#fad8fd;
+  --error:#ffb4ab; --error-container:#93000a; --on-error-container:#ffdad6; --success:#81c995; --success-container:#0f5223;
+  --surface:#111318; --surface-lowest:#0c0e13; --surface-low:#191c20; --surface-container:#1d2024; --surface-high:#282a2f; --surface-highest:#33353a;
+  --on-surface:#e2e2e9; --on-surface-variant:#c4c6d0; --outline:#8e9099; --outline-variant:#44474e;
+  color-scheme:dark;
+}
+/* the page's own switch wins over both the viewer and the OS */
+html:root[data-ui="light"]{
+  --primary:#3f5f90; --on-primary:#ffffff; --primary-container:#d6e3ff; --on-primary-container:#001b3d;
+  --secondary:#565f71; --secondary-container:#dae2f9; --on-secondary-container:#131c2b;
+  --tertiary:#705575; --tertiary-container:#fad8fd; --on-tertiary-container:#28132e;
+  --error:#ba1a1a; --error-container:#ffdad6; --on-error-container:#410002; --success:#1e8e3e; --success-container:#c4eed0;
+  --surface:#f9f9ff; --surface-lowest:#ffffff; --surface-low:#f3f3fa; --surface-container:#ededf4; --surface-high:#e7e8ee; --surface-highest:#e2e2e9;
+  --on-surface:#191c20; --on-surface-variant:#44474e; --outline:#74777f; --outline-variant:#c4c6cf;
+  color-scheme:light;
+}
+html:root[data-ui="dark"]{
+  --primary:#a8c8ff; --on-primary:#07305f; --primary-container:#254777; --on-primary-container:#d6e3ff;
+  --secondary:#bec6dc; --secondary-container:#3e4759; --on-secondary-container:#dae2f9;
+  --tertiary:#ddbce0; --tertiary-container:#573e5c; --on-tertiary-container:#fad8fd;
+  --error:#ffb4ab; --error-container:#93000a; --on-error-container:#ffdad6; --success:#81c995; --success-container:#0f5223;
+  --surface:#111318; --surface-lowest:#0c0e13; --surface-low:#191c20; --surface-container:#1d2024; --surface-high:#282a2f; --surface-highest:#33353a;
+  --on-surface:#e2e2e9; --on-surface-variant:#c4c6d0; --outline:#8e9099; --outline-variant:#44474e;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--surface);color:var(--on-surface);font-family:var(--font);font-size:16px;line-height:24px;letter-spacing:.5px;
+  -webkit-font-smoothing:antialiased;transition:background-color .4s var(--emph),color .4s var(--emph)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:90;background:var(--surface)}
+h1,h2,h3,p{margin:0}
+h1,h2,h3{text-wrap:balance}
+button,input{font:inherit;color:inherit;letter-spacing:inherit}
+:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+.wrap{padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));max-width:1200px;margin:0 auto}
+@media (max-width:600px){.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}}
+.ic{width:24px;height:24px;fill:currentColor;flex:none}
+.ic.s{width:18px;height:18px}
+/* type scale */
+.display{font-size:clamp(36px,5vw,57px);line-height:1.12;font-weight:400;letter-spacing:-.25px}
+.headline-l{font-size:clamp(26px,3vw,32px);line-height:1.25;font-weight:400;letter-spacing:0}
+.headline-s{font-size:24px;line-height:32px;font-weight:400}
+.title-l{font-size:22px;line-height:28px;font-weight:400;letter-spacing:0}
+.title-m{font-size:16px;line-height:24px;font-weight:500;letter-spacing:.15px}
+.body-l{font-size:16px;line-height:24px;letter-spacing:.5px}
+.body-m{font-size:14px;line-height:20px;letter-spacing:.25px}
+.label-l{font-size:14px;line-height:20px;font-weight:500;letter-spacing:.1px}
+.label-m{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.5px}
+.muted{color:var(--on-surface-variant)}
+
+/* state layer */
+.sl{position:relative;overflow:hidden;isolation:isolate}
+.sl::after{content:"";position:absolute;inset:0;background:currentColor;opacity:0;transition:opacity .2s var(--emph);pointer-events:none;z-index:-1}
+.sl:hover::after{opacity:.08}.sl:active::after{opacity:.12}
+
+/* top app bar + tabs */
+.appbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:80;background:var(--surface);transition:background-color .3s var(--emph),box-shadow .3s var(--emph)}
+.appbar.lift{background:var(--surface-container)}
+.appbar .bar{height:64px;display:flex;align-items:center;gap:16px}
+.appbar .logo{width:40px;height:40px;border-radius:12px;background:var(--primary-container);color:var(--on-primary-container);display:grid;place-items:center;flex:none}
+.appbar .ttl{margin-right:auto;font-size:22px;line-height:28px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.swl{display:flex;align-items:center;gap:12px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.swl span{font-size:14px;font-weight:500;color:var(--on-surface-variant)}
+@media (max-width:520px){.swl span{display:none}}
+.switch{position:relative;width:52px;height:32px;border-radius:16px;border:2px solid var(--outline);background:var(--surface-highest);cursor:pointer;padding:0;flex:none;
+  transition:background-color .25s var(--emph),border-color .25s var(--emph)}
+.switch .h{position:absolute;top:50%;left:6px;width:16px;height:16px;border-radius:50%;background:var(--outline);transform:translateY(-50%);
+  display:grid;place-items:center;color:var(--surface-highest);transition:all .3s var(--emph)}
+.switch .h svg{width:16px;height:16px;fill:currentColor;opacity:0;transition:opacity .2s}
+.switch[aria-checked="true"]{background:var(--primary);border-color:var(--primary)}
+.switch[aria-checked="true"] .h{left:22px;width:24px;height:24px;background:var(--on-primary);color:var(--primary)}
+.switch[aria-checked="true"] .h svg{opacity:1}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--outline-variant);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{position:relative;padding:14px 20px;font-size:14px;font-weight:500;letter-spacing:.1px;color:var(--on-surface-variant);text-decoration:none;white-space:nowrap;transition:color .2s}
+.tabs a.on{color:var(--primary)}
+.tabs a::before{content:"";position:absolute;left:16px;right:16px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--primary);transform:scaleX(0);transition:transform .3s var(--emph)}
+.tabs a.on::before{transform:scaleX(1)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 24px;border-radius:20px;border:0;cursor:pointer;text-decoration:none;
+  font-size:14px;font-weight:500;letter-spacing:.1px;white-space:nowrap}
+.btn.filled{background:var(--primary);color:var(--on-primary)}
+.btn.filled:hover{box-shadow:var(--shadow1)}
+.btn.tonal{background:var(--secondary-container);color:var(--on-secondary-container)}
+.btn.text{background:transparent;color:var(--primary);padding:0 12px}
+.btn .ic{width:18px;height:18px}
+
+/* hero */
+.hero{padding-block:40px 24px}
+.hero .grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:40px;align-items:center}
+@media (max-width:960px){.hero .grid{grid-template-columns:minmax(0,1fr);gap:28px}}
+.hero p.lead{margin-top:20px;max-width:46ch;color:var(--on-surface-variant)}
+.hero .acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.chipset{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.achip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 16px 0 8px;border-radius:8px;border:1px solid var(--outline-variant);
+  font-size:14px;font-weight:500;color:var(--on-surface-variant)}
+.achip .ic{width:18px;height:18px;color:var(--primary)}
+
+/* sections */
+.section{padding-block:40px}
+.section>.wrap>h2{margin-bottom:8px}
+.section>.wrap>p.intro{color:var(--on-surface-variant);max-width:62ch}
+.card{background:var(--surface-low);border-radius:28px;transition:background-color .4s var(--emph)}
+.list{margin-top:24px;padding:8px 0;overflow:hidden}
+.li{display:flex;align-items:center;gap:16px;min-height:72px;padding:12px 24px;text-decoration:none;color:var(--on-surface)}
+.li+.li{border-top:1px solid var(--outline-variant)}
+.li .av{width:40px;height:40px;border-radius:50%;background:var(--primary-container);color:var(--on-primary-container);display:grid;place-items:center;
+  font-size:16px;font-weight:500;flex:none}
+.li .tx{flex:1;min-width:0}
+.li .tx b{display:block;font-weight:400;font-size:16px;line-height:24px}
+.li .tx span{display:block;font-size:14px;line-height:20px;color:var(--on-surface-variant)}
+.li .ic{color:var(--on-surface-variant)}
+.cgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:24px}
+@media (max-width:960px){.cgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.cgrid{grid-template-columns:minmax(0,1fr)}}
+.cv{background:var(--surface-low);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:8px;transition:background-color .4s var(--emph)}
+.cv .g{width:56px;height:56px;border-radius:16px;background:var(--tertiary-container);color:var(--on-tertiary-container);display:grid;place-items:center;
+  font-size:20px;font-weight:500;margin-bottom:8px}
+.cv h3{font-size:16px;line-height:24px;font-weight:500}
+.cv p{font-size:14px;line-height:20px;color:var(--on-surface-variant)}
+.cv small{font-size:12px;line-height:16px;color:var(--on-surface-variant);margin-top:auto;padding-top:6px}
+</style>
+
+<style>
+/* lesson card */
+.lesson{padding-block:12px;scroll-margin-top:calc(118px + env(safe-area-inset-top,0px))}
+.lcard{padding:32px}
+@media (max-width:700px){.lcard{padding:20px 16px;border-radius:24px}}
+.lhead{display:flex;gap:16px;align-items:flex-start}
+.lhead .av{width:48px;height:48px;border-radius:14px;background:var(--primary-container);color:var(--on-primary-container);display:grid;place-items:center;
+  font-size:18px;font-weight:500;flex:none}
+.lhead .ov{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.5px;color:var(--primary)}
+.lhead h2{margin-top:2px}
+.lcard .sub{margin-top:12px;color:var(--on-surface-variant);max-width:70ch}
+
+.stage{position:relative;margin-top:24px;border-radius:20px;overflow:hidden;background:var(--surface-lowest);transition:background-color .4s var(--emph)}
+.stage.hero-stage{margin-top:0;border-radius:28px;background:var(--surface-low)}
+.sv{transition:opacity .25s var(--emph)}
+.sv.fade{opacity:0}
+.sv svg{display:block;width:100%;height:auto}
+.sv.orbit{cursor:grab;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.sv.orbit.dragging{cursor:grabbing}
+.s-lab{font-family:var(--font);font-size:12.5px;font-weight:500;letter-spacing:.2px}
+.s-str{font-family:var(--font);font-size:14px;font-weight:600;letter-spacing:.1px}
+.s-hud{font-family:var(--font);font-size:12px;font-weight:500;letter-spacing:.3px}
+svg.sm .s-lab{font-size:15px} svg.sm .s-str{font-size:17px} svg.sm .s-hud{font-size:14px}
+
+/* segmented buttons */
+.segbtn{display:inline-flex;border:1px solid var(--outline);border-radius:20px;overflow:hidden;height:40px;background:var(--surface-lowest)}
+.segbtn button{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;padding:0 16px;font-size:14px;font-weight:500;letter-spacing:.1px;
+  color:var(--on-surface);cursor:pointer;transition:background-color .25s var(--emph)}
+.segbtn button+button{border-left:1px solid var(--outline)}
+.segbtn button .ic{width:18px;height:18px;width:0;opacity:0;transition:width .25s var(--emph),opacity .2s}
+.segbtn button[aria-pressed="true"]{background:var(--secondary-container);color:var(--on-secondary-container)}
+.segbtn button[aria-pressed="true"] .ic{width:18px;opacity:1}
+.stage .segbtn{position:absolute;top:16px;right:16px;z-index:2}
+/* filter chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.stage .chips{position:absolute;left:16px;bottom:16px;z-index:2}
+.chip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 16px;border-radius:8px;border:1px solid var(--outline-variant);background:var(--surface-lowest);
+  font-size:14px;font-weight:500;letter-spacing:.1px;color:var(--on-surface-variant);cursor:pointer;transition:background-color .25s var(--emph),border-color .25s}
+.chip .ic{width:0;height:18px;opacity:0;transition:width .25s var(--emph),opacity .2s}
+.chip[aria-pressed="true"]{background:var(--secondary-container);border-color:transparent;color:var(--on-secondary-container);padding-left:8px}
+.chip[aria-pressed="true"] .ic{width:18px;opacity:1}
+@media (max-width:640px){.stage .segbtn{top:10px;right:10px;height:36px}.segbtn button{padding:0 12px}
+  .stage .chips{position:static;padding:12px;background:var(--surface-lowest);flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .chip{flex:none}}
+
+/* controls */
+.ctl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 40px;margin-top:24px}
+@media (max-width:720px){.ctl{grid-template-columns:minmax(0,1fr);gap:16px}}
+.cr{min-width:0}
+.cr .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px}
+.cr label{font-size:14px;font-weight:500;letter-spacing:.1px;color:var(--on-surface)}
+.cr output{font-family:var(--mono);font-size:13px;color:var(--on-surface-variant);background:var(--surface-high);border-radius:8px;padding:2px 8px}
+.segrow{grid-column:1/-1;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.segrow .label-l{color:var(--on-surface-variant)}
+/* M3 slider: thick track, slim handle with a gap */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:44px;background:transparent;margin:0;cursor:pointer;--p:50%}
+input[type=range]::-webkit-slider-runnable-track{height:16px;border-radius:8px;
+  background:linear-gradient(to right,var(--primary) calc(var(--p) - 6px),transparent calc(var(--p) - 6px),transparent calc(var(--p) + 6px),var(--secondary-container) calc(var(--p) + 6px))}
+input[type=range]::-moz-range-track{height:16px;border-radius:8px;background:var(--secondary-container)}
+input[type=range]::-moz-range-progress{height:16px;border-radius:8px;background:var(--primary)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:4px;height:44px;margin-top:-14px;border-radius:2px;background:var(--primary);transition:width .15s var(--emph)}
+input[type=range]::-moz-range-thumb{width:4px;height:44px;border:0;border-radius:2px;background:var(--primary)}
+input[type=range]:active::-webkit-slider-thumb{width:2px}
+
+/* stats + insight */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:24px}
+@media (max-width:720px){.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}}
+.st{background:var(--surface-high);border-radius:16px;padding:14px 16px;min-width:0;transition:background-color .3s var(--emph)}
+.st span{display:block;font-size:12px;line-height:16px;font-weight:500;letter-spacing:.5px;color:var(--on-surface-variant)}
+.st b{display:block;font-weight:400;font-size:clamp(18px,2.2vw,24px);line-height:32px;margin-top:4px;font-variant-numeric:tabular-nums;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st b i{font-style:normal;font-size:14px;color:var(--on-surface-variant);margin-left:4px}
+.st.good{background:var(--success-container)}.st.good b,.st.good span{color:inherit}
+.st.bad{background:var(--error-container);color:var(--on-error-container)}.st.bad span,.st.bad b i{color:inherit}
+.insight{display:flex;gap:16px;align-items:flex-start;margin-top:12px;background:var(--surface-high);border-radius:16px;padding:16px;font-size:14px;line-height:20px;
+  letter-spacing:.25px;color:var(--on-surface-variant);transition:background-color .3s var(--emph)}
+.insight .badge{width:40px;height:40px;border-radius:50%;background:var(--tertiary-container);color:var(--on-tertiary-container);display:grid;place-items:center;flex:none}
+.insight p{margin-top:10px}
+.insight b{color:var(--on-surface);font-weight:600}
+.insight.alert{background:var(--error-container);color:var(--on-error-container)}
+.insight.alert b{color:inherit}
+.insight.alert .badge{background:var(--error);color:var(--error-container)}
+
+.notes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:28px}
+@media (max-width:860px){.notes{grid-template-columns:minmax(0,1fr);gap:16px}}
+.note h3{font-size:16px;line-height:24px;font-weight:500;letter-spacing:.15px}
+.note p{font-size:14px;line-height:20px;letter-spacing:.25px;color:var(--on-surface-variant);margin-top:4px}
+.def{margin-top:20px;border-top:1px solid var(--outline-variant);padding-top:8px}
+.def>button{display:flex;align-items:center;gap:8px;border:0;background:transparent;cursor:pointer;min-height:40px;padding:8px 12px;border-radius:20px;
+  font-size:14px;font-weight:500;letter-spacing:.1px;color:var(--primary);text-align:left}
+.def>button .ic.x{transition:transform .3s var(--emph)}
+.def.open>button .ic.x{transform:rotate(180deg)}
+.drawer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--emph)}
+.drawer>div{overflow:hidden}
+.open>.drawer{grid-template-rows:1fr}
+.drawer p{font-size:14px;line-height:22px;letter-spacing:.25px;color:var(--on-surface-variant);max-width:80ch;padding:8px 12px 0}
+.drawer p b{color:var(--on-surface);font-weight:500}
+.drawer cite{display:block;font-style:normal;font-size:12px;color:var(--on-surface-variant);padding:12px 12px 8px}
+
+/* quiz */
+.qgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:24px}
+@media (max-width:980px){.qgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.qgrid{grid-template-columns:minmax(0,1fr)}}
+.q{background:var(--surface-low);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px;transition:background-color .4s var(--emph)}
+.q h3{font-size:16px;line-height:24px;font-weight:500;letter-spacing:.15px}
+.opts{display:grid;gap:4px}
+.opts button{display:flex;align-items:center;gap:12px;border:0;background:transparent;border-radius:12px;padding:10px 12px;text-align:left;font-size:14px;line-height:20px;
+  letter-spacing:.25px;cursor:pointer;color:var(--on-surface);transition:background-color .25s var(--emph)}
+.opts button:hover:not(:disabled){background:var(--surface-high)}
+.opts button:disabled{cursor:default}
+.radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--on-surface-variant);flex:none;display:grid;place-items:center;transition:all .25s var(--emph)}
+.radio svg{width:14px;height:14px;fill:currentColor;opacity:0}
+.opts button.right{background:var(--success-container)}
+.opts button.right .radio{border-color:var(--success);background:var(--success);color:var(--success-container)}
+.opts button.wrong{background:var(--error-container);color:var(--on-error-container)}
+.opts button.wrong .radio{border-color:var(--error);background:var(--error);color:var(--error-container)}
+.opts button.right .radio svg,.opts button.wrong .radio svg{opacity:1}
+.why{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--emph)}
+.why>div{overflow:hidden}
+.why p{font-size:14px;line-height:20px;letter-spacing:.25px;color:var(--on-surface-variant);padding-top:4px}
+.why b{color:var(--on-surface);font-weight:600}
+.q.done .why{grid-template-rows:1fr}
+.score{margin-top:16px;font-size:14px;color:var(--on-surface-variant)}
+
+/* search + glossary */
+.search{display:flex;align-items:center;gap:16px;height:56px;border-radius:28px;background:var(--surface-high);padding:0 20px;margin-top:24px;max-width:720px;
+  color:var(--on-surface-variant);transition:background-color .3s var(--emph),box-shadow .3s var(--emph)}
+.search:focus-within{box-shadow:var(--shadow1)}
+.search input{flex:1;min-width:0;border:0;background:transparent;font-size:16px;color:var(--on-surface);outline:0}
+.gcount{font-size:14px;color:var(--on-surface-variant);margin-top:16px;padding-left:4px}
+.glist{margin-top:12px;padding:8px 0;overflow:hidden}
+.gi+.gi{border-top:1px solid var(--outline-variant)}
+.gi>button{width:100%;display:flex;align-items:center;gap:16px;border:0;background:transparent;cursor:pointer;min-height:56px;padding:8px 24px;text-align:left}
+.gi .n{font-size:12px;font-weight:500;color:var(--on-surface-variant);width:52px;flex:none}
+.gi .t{flex:1;font-size:16px;line-height:24px}
+.gi .ic.x{color:var(--on-surface-variant);transition:transform .3s var(--emph)}
+.gi.open .ic.x{transform:rotate(180deg)}
+.gi.open .t{color:var(--primary)}
+.gi .drawer p{padding:0 24px 4px 92px}
+.gi .go{margin:4px 0 16px 80px}
+@media (max-width:640px){.gi>button{padding:8px 16px}.gi .n{display:none}.gi .drawer p{padding:0 16px 4px}.gi .go{margin-left:4px}}
+.gempty{padding:28px 24px;color:var(--on-surface-variant)}
+
+.fab{position:fixed;right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:70;width:56px;height:56px;border:0;
+  border-radius:16px;background:var(--primary-container);color:var(--on-primary-container);display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow3);
+  transform:scale(0);transition:transform .3s var(--emph)}
+.fab.show{transform:scale(1)}
+footer{padding-block:32px 48px;color:var(--on-surface-variant);font-size:14px;line-height:20px;letter-spacing:.25px}
+footer .wrap{display:grid;gap:8px;max-width:1200px}
+footer b{color:var(--on-surface);font-weight:500}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition-duration:.01ms!important;animation:none!important}}
+</style>
+
+<style>
+/* page-specific: PSF canvases, plots, layout grids */
+.hero2 .grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:40px;align-items:center}
+@media (max-width:960px){.hero2 .grid{grid-template-columns:minmax(0,1fr);gap:24px}}
+.view{position:relative;border-radius:24px;overflow:hidden;background:var(--psf-bg);transition:background-color .4s var(--emph)}
+.view canvas{display:block;width:100%;height:auto;aspect-ratio:var(--ar,1)}
+.overlay{position:absolute;left:16px;right:16px;top:16px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}
+.overlay>*{pointer-events:auto}
+.tcard{background:var(--surface-high);color:var(--on-surface);border-radius:16px;padding:12px 16px;min-width:0;box-shadow:var(--shadow1);transition:background-color .4s var(--emph)}
+.tcard .nm{font-size:22px;line-height:28px;font-weight:400}
+.tcard .meta{font-size:14px;line-height:20px;color:var(--on-surface-variant);margin-top:2px}
+.tcard .big{font-size:14px;margin-top:8px;color:var(--on-surface-variant)}
+.tcard .big b{color:var(--primary);font-weight:500;font-size:16px}
+.iconbtn{width:48px;height:48px;border-radius:16px;border:0;background:var(--primary-container);color:var(--on-primary-container);display:grid;place-items:center;cursor:pointer;flex:none;box-shadow:var(--shadow1)}
+.gens{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+@media (max-width:640px){.gens{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.gens .chip{flex:none}}
+.pcard{padding:28px}
+@media (max-width:700px){.pcard{padding:18px 14px;border-radius:24px}}
+.pcard h2{margin-bottom:6px}
+.pcard>p.lead{color:var(--on-surface-variant);max-width:72ch}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-top:20px;align-items:start}
+@media (max-width:640px){.two{grid-template-columns:minmax(0,1fr)}}
+.plot{background:var(--surface-lowest);border-radius:20px;padding:12px 8px 6px;transition:background-color .4s var(--emph)}
+.plot svg{display:block;width:100%;height:auto}
+.plot .cap{font-size:12px;line-height:16px;font-weight:500;letter-spacing:.5px;color:var(--on-surface-variant);padding:4px 10px 6px}
+.p-axis{stroke:var(--outline-variant);stroke-width:1}
+.p-grid{stroke:var(--outline-variant);stroke-width:1;stroke-dasharray:2 4;opacity:.7}
+.p-txt{fill:var(--on-surface-variant);font-family:var(--font);font-size:12px;font-weight:500}
+.p-strong{fill:var(--on-surface);font-family:var(--font);font-size:13px;font-weight:600}
+.ctl3{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 40px;margin-top:20px}
+@media (max-width:720px){.ctl3{grid-template-columns:minmax(0,1fr)}}
+.ctl3 .full{grid-column:1/-1}
+.rowline{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.rowline .label-l{color:var(--on-surface-variant)}
+.minisw{display:flex;align-items:center;gap:12px;cursor:pointer}
+.status{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:500;transition:background-color .3s,color .3s}
+.status.ok{background:var(--success-container);color:var(--on-surface)}
+.status.mid{background:var(--tertiary-container);color:var(--on-tertiary-container)}
+.status.no{background:var(--error-container);color:var(--on-error-container)}
+.discs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+@media (max-width:760px){.discs{grid-template-columns:minmax(0,1fr)}}
+.disc{background:var(--surface-lowest);border-radius:20px;overflow:hidden;transition:background-color .4s var(--emph)}
+.disc .view{border-radius:0}
+.disc .cap{padding:14px 16px 16px}
+.disc .cap b{font-size:16px;font-weight:500}
+.disc .cap p{font-size:14px;line-height:20px;color:var(--on-surface-variant);margin-top:4px}
+.formula{display:inline-block;font-family:var(--mono);font-size:14px;background:var(--surface-high);border-radius:8px;padding:2px 8px;color:var(--on-surface);letter-spacing:0}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
+@media (max-width:860px){.facts{grid-template-columns:minmax(0,1fr)}}
+.fact{background:var(--surface-high);border-radius:16px;padding:16px;transition:background-color .4s var(--emph)}
+.fact h3{font-size:16px;line-height:24px;font-weight:500}
+.fact p{font-size:14px;line-height:20px;color:var(--on-surface-variant);margin-top:4px}
+.cite{white-space:nowrap;margin-left:.25em;color:var(--primary);font-size:.92em}
+.cite a{color:var(--primary);text-decoration:none;font-weight:600}
+.cite a:hover{text-decoration:underline}
+.refs{margin:16px 0 0;padding-left:0;list-style:none;counter-reset:r;display:grid;gap:12px}
+.refs li{display:grid;grid-template-columns:42px minmax(0,1fr);gap:8px;font-size:14px;line-height:21px;letter-spacing:.2px;color:var(--on-surface-variant);
+  padding:10px 12px;border-radius:12px;transition:background-color .6s var(--emph)}
+.refs li .n{font-weight:600;color:var(--primary)}
+.refs li b{color:var(--on-surface);font-weight:500}
+.refs li a{color:var(--primary);word-break:break-all}
+.refs li:target{background:var(--secondary-container)}
+.author{display:flex;gap:20px;align-items:flex-start}
+@media (max-width:560px){.author{flex-direction:column}}
+.av-l{width:64px;height:64px;border-radius:20px;background:var(--tertiary-container);color:var(--on-tertiary-container);display:grid;place-items:center;font-size:22px;font-weight:500;flex:none}
+.who{min-width:0}
+.contact{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center}
+.cchip{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 6px 0 14px;border-radius:12px;background:var(--surface-high);font-size:14px;color:var(--on-surface)}
+.cchip .sel{-webkit-user-select:all;user-select:all}
+.cp{border:0;background:transparent;color:var(--primary);font-size:13px;font-weight:500;padding:6px 10px;border-radius:8px;cursor:pointer}
+.cp:hover{background:var(--secondary-container)}
+.palw{position:relative;margin-left:auto;margin-right:8px}
+.palbtn{width:40px;height:40px;border-radius:20px;border:0;background:transparent;display:grid;place-items:center;cursor:pointer}
+.palbtn:hover{background:var(--surface-high)}
+.palbtn .dot{width:22px;height:22px;border-radius:50%;background:conic-gradient(var(--primary) 0 50%,var(--tertiary-container) 0 75%,var(--secondary-container) 0);box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--outline)}
+.palmenu{position:absolute;right:0;top:48px;z-index:90;width:220px;padding:14px;border-radius:20px;background:var(--surface-container);
+  box-shadow:0 4px 8px 3px rgba(0,0,0,.12),0 1px 3px rgba(0,0,0,.2);display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.palmenu[hidden]{display:none}
+.palmenu .h{grid-column:1/-1;font-size:13px;font-weight:500;color:var(--on-surface-variant);padding:0 4px 4px}
+.palopt{border:0;background:transparent;border-radius:14px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;color:var(--on-surface);font-size:12px;font-family:inherit}
+.palopt:hover{background:var(--surface-high)}
+.palopt[aria-checked="true"]{background:var(--secondary-container);color:var(--on-secondary-container)}
+.palopt .sw{width:36px;height:36px;border-radius:50%;overflow:hidden;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.palopt .sw i:first-child{grid-row:1/3}
+/* ---------- responsive: phone ≤ 600, tablet 601–1024, laptop/desktop above ---------- */
+.segbtn button{white-space:nowrap}
+.cr .row{flex-wrap:wrap;row-gap:4px}
+.cr output{white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+input[type=range]{touch-action:pan-y}
+@media (max-width:600px){
+  .appbar .bar{gap:10px}
+  .palw{margin-right:2px}
+  .display{font-size:36px;line-height:42px}
+  .headline-l{font-size:26px;line-height:32px}
+  .lead.body-l,.body-l{font-size:15px;line-height:23px}
+  .segbtn button{padding:0 10px;font-size:13px}
+  .cr output{font-size:12px}
+  .insight{padding:12px;gap:10px}
+  .insight .badge{width:32px;height:32px}
+  .plot{padding:8px 4px 4px;border-radius:16px}
+  .facts .fact,.fact{padding:16px}
+  .refs li{grid-template-columns:34px minmax(0,1fr);padding:8px 6px;font-size:13px;line-height:20px}
+  .contact .cchip{flex:1 1 100%;justify-content:space-between}
+  .contact .btn{flex:1 1 100%;justify-content:center}
+  footer{font-size:13px}
+}
+@media (min-width:601px) and (max-width:960px){
+  .hero2 .view{max-width:520px;margin-inline:auto}
+  .hero2 .gens,.hero2 .gens+p{max-width:520px;margin-inline:auto}
+}
+@media (min-width:601px) and (max-width:1024px){
+  .display{font-size:44px;line-height:52px}
+  .pcard{padding:24px 22px}
+}
+@media (hover:none){.palbtn,.iconbtn{min-width:44px;min-height:44px}.chip{min-height:36px}}
+/* centred brand: large title scrolls away, the section tabs stay pinned */
+:root{--barh:120px}
+.appbar{top:calc(env(safe-area-inset-top,0px) - var(--barh))}
+.appbar .bar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);height:var(--barh);gap:12px}
+.appbar .brand{grid-column:2;margin:0;font-size:68px;line-height:76px;font-weight:700;letter-spacing:-1.5px;color:var(--on-surface);text-decoration:none;white-space:nowrap;overflow:visible}
+.bar-r{grid-column:3;justify-self:end;display:flex;align-items:center;gap:8px}
+.bar-r .palw{margin:0}
+@media (max-width:600px){
+  :root{--barh:132px}
+  .appbar .bar{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto;justify-items:center;align-content:center;gap:6px}
+  .bar-l{display:none}
+  .appbar .brand{grid-column:1;font-size:48px;line-height:56px;letter-spacing:-1px}
+  .bar-r{grid-column:1;justify-self:center}
+  .palmenu{right:auto;left:50%;transform:translateX(-50%)}
+}
+@media (min-width:760px){.tabs{justify-content:center}}
+:root{--psf-bg:#ffffff}
+html:root[data-ui="dark"]{--psf-bg:#07080b}
+html:root[data-ui="light"]{--psf-bg:#ffffff}
+</style>
+
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 0 1 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></symbol>
+    <symbol id="i-cube" viewBox="0 0 24 24"><path d="M21 16.5c0 .38-.21.71-.53.88l-7.9 4.44c-.16.12-.36.18-.57.18-.21 0-.41-.06-.57-.18l-7.9-4.44A.991.991 0 0 1 3 16.5v-9c0-.38.21-.71.53-.88l7.9-4.44c.16-.12.36-.18.57-.18.21 0 .41.06.57.18l7.9 4.44c.32.17.53.5.53.88v9zM12 4.15 6.04 7.5 12 10.85l5.96-3.35L12 4.15zM5 15.91l6 3.38v-6.71L5 9.21v6.7zm14 0v-6.7l-6 3.37v6.71l6-3.38z"/></symbol>
+    <symbol id="i-tune" viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></symbol>
+    <symbol id="i-lens" viewBox="0 0 24 24"><path d="M12 2c-1.7 2.6-2.6 6.3-2.6 10s.9 7.4 2.6 10c1.7-2.6 2.6-6.3 2.6-10S13.7 4.6 12 2zM2 11h5v2H2zm15 0h5v2h-5z"/></symbol>
+
+    <filter id="glow" filterUnits="userSpaceOnUse" x="-60" y="-60" width="1200" height="760"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <linearGradient id="glassD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ab4f8" stop-opacity=".2"/><stop offset=".5" stop-color="#8ab4f8" stop-opacity=".07"/><stop offset="1" stop-color="#8ab4f8" stop-opacity=".18"/></linearGradient>
+    <linearGradient id="glassL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a73e8" stop-opacity=".14"/><stop offset=".5" stop-color="#1a73e8" stop-opacity=".05"/><stop offset="1" stop-color="#1a73e8" stop-opacity=".12"/></linearGradient>
+    <linearGradient id="badD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f28b82" stop-opacity=".3"/><stop offset="1" stop-color="#f28b82" stop-opacity=".12"/></linearGradient>
+    <linearGradient id="badL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d93025" stop-opacity=".2"/><stop offset="1" stop-color="#d93025" stop-opacity=".08"/></linearGradient>
+    <pattern id="gridD" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#c4c6d0" fill-opacity=".12"/></pattern>
+    <pattern id="gridL" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#44474e" fill-opacity=".14"/></pattern>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 12c2.5-6 5-6 7.5 0s5 6 7.5 0 3.5-4.5 5-3l-1.2 1.6c-.6-.4-1.6.6-2.5 2.6-2.5 6-5 6-7.5 0s-5-6-7.5 0z"/></symbol>
+  </defs>
+</svg>
+<header class="appbar" id="hdr">
+  <div class="wrap bar">
+    <span class="bar-l" aria-hidden="true"></span>
+    <a class="ttl brand" href="#top">PSF Lab</a>
+    <div class="bar-r">
+    <div class="palw">
+      <button class="iconbtn palbtn" id="palBtn" aria-haspopup="true" aria-expanded="false" aria-label="Colour palette"><span class="dot"></span></button>
+      <div class="palmenu" id="palMenu" role="menu" aria-label="Colour palette" hidden></div>
+    </div>
+    <label class="swl" for="themeSwitch"><span>Dark theme</span>
+      <button class="switch" id="themeSwitch" role="switch" aria-checked="false" aria-label="Dark theme"><span class="h"><svg><use href="#i-moon"/></svg></span></button>
+    </label>
+    </div>
+  </div>
+  <div class="wrap"><nav class="tabs" aria-label="Sections">
+    <a href="#explorer">PSF explorer</a><a href="#twopoint">Two points</a><a href="#litho">Lithography</a><a href="#discs">CD, DVD, Blu-ray</a><a href="#refs">References</a></nav></div>
+</header>
+
+<main id="top">
+  <section class="hero2" style="padding-block:36px 20px">
+    <div class="wrap grid">
+      <div>
+        <h1 class="display">Why chips are printed with ultraviolet light</h1>
+        <p class="body-l muted" style="margin-top:18px;max-width:48ch">A lens can’t focus light to a point. It makes a small blur, the point spread function, whose
+          bright core has radius <span class="formula">r = 0.61 λ / NA</span><span class="cite" data-ref="bornwolf,evident"></span>. To draw finer lines you need a shorter wavelength λ,
+          a larger numerical aperture NA, or both. The animation shows every generation of chip-making light at the same 2 µm scale.</p>
+        <div class="acts" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px">
+          <a class="btn filled" href="#explorer">Try the PSF explorer</a>
+          <a class="btn tonal" href="#litho">Jump to lithography</a>
+        </div>
+      </div>
+      <div>
+        <div class="view" id="heroView" style="--ar:1.25">
+          <canvas id="heroCv" aria-label="Animated point spread function for each lithography generation, drawn at a fixed 2 micrometre scale"></canvas>
+          <div class="overlay">
+            <div class="tcard" id="heroCard"></div>
+            <button class="iconbtn" id="heroPlay" aria-label="Pause animation"><svg class="ic"><use href="#i-pause"/></svg></button>
+          </div>
+        </div>
+        <div class="gens chips" id="gens" role="group" aria-label="Lithography generation"></div>
+        <p class="body-m muted" style="margin-top:10px">Wavelengths<span class="cite" data-ref="photolitho,euvwiki"></span> and highest published NA for each generation<span class="cite" data-ref="spieg,nikon,asml,immwiki,semieng"></span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="explorer" style="scroll-margin-top:64px">
+    <div class="wrap"><article class="card pcard">
+      <h2 class="headline-l">PSF explorer</h2>
+      <p class="lead body-l">Change the wavelength and the F-number. The picture keeps a fixed size, so the spot really grows and shrinks.
+        About 84% of the light always lands inside the first dark ring<span class="cite" data-ref="airywiki"></span>; only the ring’s size changes. Depth of focus is estimated as λ/NA²<span class="cite" data-ref="photolitho"></span>.</p>
+      <div class="two">
+        <div class="view" style="--ar:1"><canvas id="exCv" aria-label="Point spread function image"></canvas></div>
+        <div>
+          <div class="plot"><div class="cap">Intensity across the centre</div><div id="exPlot"></div></div>
+          <div class="stats" id="exStats" style="grid-template-columns:repeat(2,minmax(0,1fr))"></div>
+        </div>
+      </div>
+      <div class="ctl3">
+        <div class="cr"><div class="row"><label for="exLam">Wavelength</label><output id="exLamO"></output></div><input type="range" id="exLam" min="0" max="1000" step="1"></div>
+        <div class="cr"><div class="row"><label for="exF">F-number</label><output id="exFO"></output></div><input type="range" id="exF" min="0" max="1000" step="1"></div>
+        <div class="full rowline"><span class="label-l">Wavelength presets</span><div class="chips" id="exLamChips"></div></div>
+        <div class="rowline"><span class="label-l">View width</span><div class="segbtn" id="exView" role="group" aria-label="View width"></div></div>
+        <div class="rowline"><span class="label-l">Brightness</span><div class="segbtn" id="exMode" role="group" aria-label="Brightness scale"></div></div>
+        <div class="rowline"><label class="minisw" for="exImm"><button class="switch" id="exImm" role="switch" aria-checked="false" aria-label="Water immersion"><span class="h"><svg><use href="#i-check"/></svg></span></button><span class="label-l">Water immersion (n = 1.44, allows NA above 1)</span></label></div>
+        <div class="rowline"><button class="btn tonal" id="exSweep"><svg class="ic"><use href="#i-wave"/></svg>Animate through the visible spectrum</button></div>
+      </div>
+      <div class="insight" id="exIns"><span class="badge"><svg class="ic"><use href="#i-bulb"/></svg></span><p></p></div>
+    </article></div>
+  </section>
+
+  <section class="section" id="twopoint" style="scroll-margin-top:64px">
+    <div class="wrap"><article class="card pcard">
+      <h2 class="headline-l">When can you tell two points apart?</h2>
+      <p class="lead body-l">Two equally bright points, each blurred into its own PSF. Lord Rayleigh’s rule: they are resolved when one
+        peak sits on the other’s first dark ring, a separation of exactly one Airy radius<span class="cite" data-ref="evident,angres"></span>. Here the two points stay put while you change the wavelength:
+        shorter light shrinks each blur until the pair splits apart. The F-number follows the explorer above.</p>
+      <div class="two">
+        <div class="view" style="--ar:2"><canvas id="tpCv" aria-label="Two point sources and their combined image"></canvas></div>
+        <div class="plot"><div class="cap">Intensity along the line through both points</div><div id="tpPlot"></div></div>
+      </div>
+      <div class="ctl3">
+        <div class="cr"><div class="row"><label for="tpLam">Wavelength</label><output id="tpLamO"></output></div><input type="range" id="tpLam" min="250" max="800" step="1" value="650"></div>
+        <div class="cr"><div class="row"><label for="tpSep">Distance between the points</label><output id="tpSepO"></output></div><input type="range" id="tpSep" min="0.3" max="2.2" step="0.005" value="1"></div>
+        <div class="full rowline"><span class="label-l">Wavelength presets</span><div class="chips" id="tpLamChips"></div></div>
+        <div class="full rowline"><span class="status" id="tpStatus"></span><span class="body-m muted" id="tpAbs"></span></div>
+      </div>
+      <div class="insight" id="tpIns"><span class="badge"><svg class="ic"><use href="#i-bulb"/></svg></span><p></p></div>
+      <p class="body-m muted" style="margin-top:10px">Sources give the Rayleigh midpoint as 73.5% of the peaks<span class="cite" data-ref="tektite"></span> or a 26.3% dip<span class="cite" data-ref="angres"></span>; the exact Bessel calculation on this page gives 73.5%. Sparrow’s limit, 0.47 λ/NA<span class="cite" data-ref="evident"></span>, is 0.77 Airy radii.</p>
+    </article></div>
+  </section>
+
+  <section class="section" id="litho" style="scroll-margin-top:64px">
+    <div class="wrap"><article class="card pcard">
+      <h2 class="headline-l">Printing lines on a chip</h2>
+      <p class="lead body-l">A scanner images a mask of lines onto a light-sensitive resist. The finest half-pitch it can print is
+        <span class="formula">CD = k₁ · λ / NA</span><span class="cite" data-ref="mack,photolitho"></span>. Physics stops k₁ at 0.25<span class="cite" data-ref="mack"></span>: below that, the line pattern is finer than the
+        lens can pass, and the image on the wafer is perfectly flat grey. So the industry shortened λ and pushed NA up, generation after generation.</p>
+      <div class="rowline" style="margin-top:20px"><span class="label-l">Generation</span><div class="chips" id="liTools"></div></div>
+      <div class="two">
+        <div class="plot"><div class="cap">Light on the wafer across three periods, with dipole illumination (mask dashed, resist threshold dotted)<span class="cite" data-ref="goodman,mack"></span></div><div id="liPlot"></div></div>
+        <div>
+          <div class="stats" id="liStats" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:0"></div>
+          <div class="ctl3" style="grid-template-columns:minmax(0,1fr)">
+            <div class="cr"><div class="row"><label for="liHp">Half-pitch to print</label><output id="liHpO"></output></div><input type="range" id="liHp" min="0" max="1000" step="1"></div>
+          </div>
+        </div>
+      </div>
+      <div class="insight" id="liIns"><span class="badge"><svg class="ic"><use href="#i-bulb"/></svg></span><p></p></div>
+      <div class="plot" style="margin-top:16px"><div class="cap">Smallest half-pitch each generation can print at k₁ = 0.25 (log scale), with its depth of focus ≈ λ/NA²</div><div id="liChart"></div>
+        <p class="body-m muted" style="padding:6px 10px 10px">These are physical limits. Production runs at higher k₁, typically about 0.4<span class="cite" data-ref="photolitho"></span>: EUV scanners are specified at 13 nm and High-NA EUV at 8 nm<span class="cite" data-ref="semieng"></span>, about k₁ ≈ 0.32.
+        For ArF immersion at NA 1.35 the 36 nm limit matches the published figure<span class="cite" data-ref="immwiki"></span>.</p></div>
+      <div class="facts">
+        <div class="fact"><h3>Shorter wavelength</h3><p>Mercury lamps gave 436 and 365 nm. Excimer lasers brought 248 nm (KrF) and 193 nm (ArF)<span class="cite" data-ref="photolitho"></span>. EUV jumps to 13.5 nm from a tin plasma; every material absorbs it, so the optics become mirrors in vacuum<span class="cite" data-ref="euvwiki"></span>.</p></div>
+        <div class="fact"><h3>Bigger NA, even above 1</h3><p>NA = n·sin θ. Dry lenses top out near 0.93<span class="cite" data-ref="mack,asml"></span>. Putting water (n ≈ 1.44 at 193 nm) between the last lens and the wafer lets tools reach NA 1.35<span class="cite" data-ref="immwiki,mack"></span>, a trick called immersion lithography.</p></div>
+        <div class="fact"><h3>The price: depth of focus</h3><p>Depth of focus falls as 1/NA²<span class="cite" data-ref="photolitho"></span>, much faster than resolution improves. By the λ/NA² estimate, High-NA EUV focuses within tens of nanometres, so wafers must be extremely flat.</p></div>
+      </div>
+    </article></div>
+  </section>
+
+  <section class="section" id="discs" style="scroll-margin-top:64px">
+    <div class="wrap"><article class="card pcard">
+      <h2 class="headline-l">The same physics in your living room</h2>
+      <p class="lead body-l">CD, DVD and Blu-ray store data in spiral tracks read by a focused laser spot. A smaller spot allows tighter tracks, so each
+        generation used a shorter wavelength and a higher NA<span class="cite" data-ref="katayama,samsung,cdwiki"></span>. All three are drawn at the same 4 µm scale, with the track spacing dashed.</p>
+      <div class="discs" id="discRow"></div>
+      <p class="body-m muted" style="margin-top:16px">Microscopes hit the same wall: with oil immersion (NA 1.4) and green light (550 nm), the Airy radius is about 240 nm,
+        which is why ordinary light microscopes can’t resolve finer detail without super-resolution tricks<span class="cite" data-ref="evident"></span>.</p>
+    </article></div>
+  </section>
+</main>
+
+<section class="section" id="refs" style="scroll-margin-top:64px">
+  <div class="wrap"><article class="card pcard">
+    <h2 class="headline-l">References</h2>
+    <p class="lead body-m">Numbered in order of first appearance. Web sources accessed October 2026.</p>
+    <ol class="refs" id="refList"></ol>
+  </article></div>
+</section>
+
+<section class="section" id="author" style="padding-top:0">
+  <div class="wrap"><article class="card pcard author">
+    <div class="av-l" aria-hidden="true">MB</div>
+    <div class="who">
+      <div class="label-m" style="color:var(--primary)">Prepared by</div>
+      <h2 class="title-l" style="margin-top:2px">Meghdoot Biswas, M.S. <span class="muted body-m">(he/him)</span></h2>
+      <p class="body-m">PhD Student, Optical Sciences</p>
+      <p class="body-m muted" style="margin-top:8px">LOFT Group, Wyant College of Optical Sciences<br>The University of Arizona, Tucson, AZ</p>
+      <div class="contact">
+        <span class="cchip"><span class="sel">meghdoot@arizona.edu</span><button class="cp" data-copy="meghdoot@arizona.edu" aria-label="Copy email address">Copy</button></span>
+        <a class="btn tonal" href="https://www.linkedin.com/in/meghdootbiswas/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+  </article></div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><b>How it is computed:</b> the PSF is the Airy pattern [2J₁(v)/v]² with v = 2π·NA·r/λ, for an aberration-free circular pupil<span class="cite" data-ref="bornwolf"></span>. Airy radius r = 0.61 λ/NA = 1.22 λ·F/#,
+      with NA = 1/(2·F/#). Line images use ideal dipole illumination: the mask’s diffraction orders that fit inside the pupil interfere, and none beyond the first can
+      pass once half-pitch < λ/(4NA), the k₁ = 0.25 limit<span class="cite" data-ref="goodman,mack"></span>. Real scanners add finite pole sizes, resist chemistry and other enhancement tricks; the limit is the same, the details differ.</p>
+    <p><b>Numbers:</b> wavelengths are standard source lines; NA values are the highest published for each generation. Depth of focus uses k₂ = 1 in DOF = k₂ λ/NA².</p>
+  </div>
+</footer>
+<button class="fab" id="fab" aria-label="Back to top"><svg class="ic"><use href="#i-up"/></svg></button>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const ICON=n=>`<svg class="ic"><use href="#i-${n}"/></svg>`;
+
+/* ---------- physics ---------- */
+function J1(x){const ax=Math.abs(x);
+  if(ax<8){const y=x*x;return x*(72362614232.0+y*(-7895059235.0+y*(242396853.1+y*(-2972611.439+y*(15704.48260+y*(-30.16036606))))))/
+    (144725228442.0+y*(2300535178.0+y*(18583304.74+y*(99447.43394+y*(376.9991397+y)))));}
+  const z=8/ax,y=z*z,xx=ax-2.356194491;
+  const p1=1+y*(0.183105e-2+y*(-0.3516396496e-4+y*(0.2457520174e-5+y*(-0.240337019e-6))));
+  const p2=0.04687499995+y*(-0.2002690873e-3+y*(0.8449199096e-5+y*(-0.88228987e-6+y*0.105787412e-6)));
+  const r=Math.sqrt(0.636619772/ax)*(Math.cos(xx)*p1-z*Math.sin(xx)*p2);return x<0?-r:r;}
+const airyI=v=>v<1e-7?1:Math.pow(2*J1(v)/v,2);
+const VMAX=220,LN=22000,LUT=new Float32Array(LN+1);for(let i=0;i<=LN;i++)LUT[i]=airyI(i*VMAX/LN);
+const Iv=v=>{if(v>=VMAX)return 0;const p=v*LN/VMAX,i=p|0,f=p-i;return LUT[i]+(LUT[i+1]-LUT[i])*f;};  /* linear interpolation */
+const R0=(lam,NA)=>0.60983*lam/NA;              /* first dark ring: v = 3.8317 */
+const mtf=s=>s>=1?0:(2/Math.PI)*(Math.acos(s)-s*Math.sqrt(1-s*s));
+function fmtL(nm){if(nm<1000)return(nm<10?nm.toFixed(1):nm<100?nm.toFixed(1):nm.toFixed(0))+' nm';const u=nm/1000;return(u<10?u.toFixed(2):u<100?u.toFixed(1):u.toFixed(0))+' µm';}
+const fmtF=F=>'f/'+(F<1?F.toFixed(2):F<10?F.toFixed(1):F.toFixed(0));
+
+/* ---------- theme: our own state is authoritative ---------- */
+const root=document.documentElement;
+const hostTheme=()=>{const t=root.getAttribute('data-theme');return t==='dark'||t==='light'?t:null;};
+const sysTheme=()=>matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+let chosen=null;try{chosen=localStorage.getItem('psf-theme')}catch(_){}
+let THEME='light';
+/* ---------- colour palettes (Material 3 tonal roles, light | dark) ---------- */
+const PAL_KEYS=['primary','on-primary','primary-container','on-primary-container','secondary','secondary-container','on-secondary-container','tertiary','tertiary-container','on-tertiary-container'];
+const PALS={
+ green: {name:'Forest', l:['#3b6939','#ffffff','#bcf0b4','#002204','#52634f','#d5e8cf','#111f0f','#38656a','#bcebee','#002022'],
+                       d:['#a1d39a','#0a390f','#235024','#bcf0b4','#b9ccb4','#3a4b39','#d5e8cf','#a0cfd3','#1f4d52','#bcebee']},
+ blue:  {name:'Ocean',  l:['#3f5f90','#ffffff','#d6e3ff','#001b3d','#565f71','#dae2f9','#131c2b','#705575','#fad8fd','#28132e'],
+                       d:['#a8c8ff','#07305f','#254777','#d6e3ff','#bec6dc','#3e4759','#dae2f9','#ddbce0','#573e5c','#fad8fd']},
+ slate: {name:'Graphite',l:['#545f70','#ffffff','#d8e3f8','#111c2b','#5b5f65','#dfe2eb','#181c22','#6d5677','#f6d9ff','#271430'],
+                       d:['#bcc7db','#263141','#3c4758','#d8e3f8','#c3c6cf','#43474e','#dfe2eb','#d9bde3','#543f5e','#f6d9ff']},
+ mono:  {name:'Monochrome',l:['#1f1f1f','#ffffff','#e3e3e3','#1b1b1b','#5e5e5e','#e2e2e2','#1b1b1b','#5e5e5e','#d6d6d6','#1b1b1b'],
+                       d:['#e2e2e2','#1b1b1b','#474747','#e2e2e2','#c6c6c6','#3a3a3a','#e2e2e2','#c6c6c6','#4a4a4a','#e2e2e2'],
+        sl:'--surface:#f9f9f9;--surface-lowest:#ffffff;--surface-low:#f3f3f3;--surface-container:#eeeeee;--surface-high:#e8e8e8;--surface-highest:#e2e2e2;--on-surface:#1b1b1b;--on-surface-variant:#474747;--outline:#777777;--outline-variant:#c6c6c6',
+        sd:'--surface:#131313;--surface-lowest:#0e0e0e;--surface-low:#1b1b1b;--surface-container:#1f1f1f;--surface-high:#2a2a2a;--surface-highest:#353535;--on-surface:#e2e2e2;--on-surface-variant:#c6c6c6;--outline:#919191;--outline-variant:#474747'}};
+(function(){let css='';for(const k in PALS){for(const m of ['light','dark']){const v=PALS[k][m[0]];
+  const ex=PALS[k]['s'+m[0]];css+=`html:root[data-pal="${k}"][data-ui="${m}"]{${PAL_KEYS.map((p,i)=>`--${p}:${v[i]}`).join(';')}${ex?';'+ex:''}}\n`;}}
+  const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);})();
+let PAL='blue';try{const s=localStorage.getItem('psf-pal');if(s&&PALS[s])PAL=s;}catch(_){}
+function setPal(k){PAL=k;root.setAttribute('data-pal',k);try{localStorage.setItem('psf-pal',k)}catch(_){}
+  document.querySelectorAll('.palopt').forEach(b=>b.setAttribute('aria-checked',String(b.dataset.k===k)));if(window._ready)repaintAll();}
+$('palMenu').innerHTML='<div class="h">Colour palette</div>'+Object.entries(PALS).map(([k,p])=>
+  `<button class="palopt" role="menuitemradio" data-k="${k}" aria-checked="false"><span class="sw"><i style="background:${p.l[0]}"></i><i style="background:${p.l[2]}"></i><i style="background:${p.l[8]}"></i></span>${p.name}</button>`).join('');
+$('palMenu').addEventListener('click',e=>{const b=e.target.closest('.palopt');if(b)setPal(b.dataset.k);});
+$('palBtn').addEventListener('click',e=>{e.stopPropagation();const m=$('palMenu'),open=m.hidden;m.hidden=!open;$('palBtn').setAttribute('aria-expanded',String(open));});
+document.addEventListener('click',e=>{if(!e.target.closest('.palw')){$('palMenu').hidden=true;$('palBtn').setAttribute('aria-expanded','false');}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('palMenu').hidden=true;$('palBtn').setAttribute('aria-expanded','false');}});
+setPal(PAL);
+
+function setTheme(t,repaint=true){THEME=t;root.setAttribute('data-ui',t);$('themeSwitch').setAttribute('aria-checked',String(t==='dark'));if(repaint)repaintAll();}
+setTheme(chosen||hostTheme()||sysTheme(),false);
+$('themeSwitch').addEventListener('click',e=>{e.preventDefault();chosen=THEME==='dark'?'light':'dark';try{localStorage.setItem('psf-theme',chosen)}catch(_){}setTheme(chosen);});
+new MutationObserver(()=>{if(!chosen){const h=hostTheme();if(h&&h!==THEME)setTheme(h);}}).observe(root,{attributes:true,attributeFilter:['data-theme']});
+
+/* ---------- colour for a wavelength (false colour outside the visible band) ---------- */
+function tint(lam){const dark=THEME==='dark';
+  if(lam<380) return dark?[197,138,249]:[118,60,190];
+  if(lam>760) return dark?[242,110,100]:[170,30,30];
+  let r=0,g=0,b=0,w=lam;
+  if(w<440){r=-(w-440)/60;b=1}else if(w<490){g=(w-440)/50;b=1}else if(w<510){g=1;b=-(w-510)/20}
+  else if(w<580){r=(w-510)/70;g=1}else if(w<645){r=1;g=-(w-645)/65}else{r=1}
+  const k=w<420?.55+.45*(w-380)/40:w>700?.55+.45*(760-w)/60:1;
+  const c=v=>Math.round(255*Math.pow(Math.max(0,v)*k,.8));
+  let out=[c(r),c(g),c(b)]; if(!dark) out=out.map(v=>Math.round(v*.78));
+  return out;}
+const rgb=a=>`rgb(${a[0]},${a[1]},${a[2]})`;
+const lamNote=lam=>lam<380?'ultraviolet, shown in false colour':lam>760?'infrared, shown in false colour':'visible';
+
+/* ---------- PSF rendering to canvas ---------- */
+function fit(cv,maxPx){const ar=parseFloat(getComputedStyle(cv.parentElement).getPropertyValue('--ar'))||1,w=cv.clientWidth||600,
+  s=Math.min(maxPx/w,Math.min(window.devicePixelRatio||1,2)),W=Math.max(120,Math.round(w*s)),H=Math.round(W/ar);
+  if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;cv._dist=null;} return w;}
+function distTable(cv){if(cv._dist)return cv._dist;const W=cv.width,H=cv.height,d=new Float32Array(W*H),cx=W/2,cy=H/2;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const dx=x+.5-cx,dy=y+.5-cy;d[y*W+x]=Math.sqrt(dx*dx+dy*dy);}return cv._dist=d;}
+function renderPSF(cv,o){
+  const W=cv.width,H=cv.height,ctx=cv.getContext('2d'),img=ctx.createImageData(W,H),d32=new Uint32Array(img.data.buffer),buf=o._buf&&o._buf.length===W*H?o._buf:new Float32Array(W*H);
+  const nmpp=o.view/W,kv=2*Math.PI*o.NA*nmpp/o.lam,src=o.src||[[0,0,1]],dark=THEME==='dark',bg=dark?[7,8,11]:[255,255,255],tc=tint(o.lam);
+  let mx=0;
+  if(src.length===1&&!src[0][0]&&!src[0][1]){const dt=distTable(cv);for(let i=0;i<W*H;i++){const I=Iv(kv*dt[i]);buf[i]=I;}mx=1;}
+  else{const cx=W/2,cy=H/2;for(let y=0;y<H;y++)for(let x=0;x<W;x++){let I=0;for(const s of src){const dx=x+.5-cx-s[0]/nmpp,dy=y+.5-cy-s[1]/nmpp;I+=s[2]*Iv(kv*Math.sqrt(dx*dx+dy*dy));}
+    buf[y*W+x]=I;if(I>mx)mx=I;}}
+  const log=o.mode==='log';
+  for(let i=0;i<W*H;i++){const I=buf[i]/mx;let t=log?(I<=1e-6?0:clamp((Math.log10(I)+3.2)/3.2,0,1)):I;
+    let r,g,b;
+    if(dark){r=bg[0]+(tc[0]-bg[0])*t;g=bg[1]+(tc[1]-bg[1])*t;b=bg[2]+(tc[2]-bg[2])*t;const w=t>.82?(t-.82)/.18*.6:0;r+=(255-r)*w;g+=(255-g)*w;b+=(255-b)*w;}
+    else{r=255+(tc[0]-255)*t;g=255+(tc[1]-255)*t;b=255+(tc[2]-255)*t;}
+    d32[i]=0xff000000|((b|0)<<16)|((g|0)<<8)|(r|0);}
+  ctx.putImageData(img,0,0);
+  const px=W/(cv.clientWidth||W);
+  if(o.ring){const r=R0(o.lam,o.NA)/nmpp;if(r>3&&r<Math.max(W,H)){ctx.save();ctx.setLineDash([5*px,5*px]);ctx.lineWidth=1.3*px;ctx.strokeStyle=dark?'rgba(255,255,255,.55)':'rgba(25,28,32,.5)';
+    ctx.beginPath();ctx.arc(W/2,H/2,r,0,2*Math.PI);ctx.stroke();ctx.restore();}}
+  if(o.overlay) o.overlay(ctx,W,H,nmpp,px);
+  scaleBar(ctx,W,H,nmpp,px,o.view);
+}
+function scaleBar(ctx,W,H,nmpp,px,view){
+  const target=view*.22,e=Math.pow(10,Math.floor(Math.log10(target))),m=target/e,L=(m<1.5?1:m<3.5?2:m<7.5?5:10)*e,Lp=L/nmpp;
+  const x0=18*px,y0=H-18*px,dark=THEME==='dark',c=dark?'rgba(255,255,255,.92)':'rgba(25,28,32,.9)';
+  ctx.save();ctx.fillStyle=dark?'rgba(7,8,11,.55)':'rgba(255,255,255,.75)';ctx.fillRect(x0-8*px,y0-30*px,Lp+16*px,38*px);
+  ctx.fillStyle=c;ctx.fillRect(x0,y0-3*px,Lp,3*px);ctx.font=`600 ${12.5*px}px "Roboto Flex",Roboto,system-ui,sans-serif`;ctx.textBaseline='bottom';ctx.fillText(fmtL(L),x0,y0-8*px);ctx.restore();
+}
+
+/* ---------- small SVG plot helper (colours come from theme tokens) ---------- */
+/* chart width follows its container, so axis text stays a readable 12 px on phones */
+function pw(id,max){const w=($(id)&&$(id).clientWidth)||max;return Math.round(Math.max(300,Math.min(max,w)));}
+function plot(W,H,x0,x1,y1,series,extras){
+  const L=46,Rm=14,T=14,B=30,sx=x=>L+(x-x0)/(x1-x0)*(W-L-Rm),sy=y=>H-B-y/y1*(H-T-B);
+  let g=`<line class="p-axis" x1="${L}" y1="${H-B}" x2="${W-Rm}" y2="${H-B}"/><line class="p-axis" x1="${L}" y1="${T}" x2="${L}" y2="${H-B}"/>`;
+  [.5,1].forEach(v=>{if(v<=y1)g+=`<line class="p-grid" x1="${L}" y1="${sy(v)}" x2="${W-Rm}" y2="${sy(v)}"/><text class="p-txt" x="${L-8}" y="${sy(v)+4}" text-anchor="end">${v}</text>`;});
+  g+=`<text class="p-txt" x="${L-8}" y="${H-B+4}" text-anchor="end">0</text>`;
+  (extras&&extras.pre||[]).forEach(e=>g+=e(sx,sy));
+  series.forEach(s=>{const d=s.pts.map((p,i)=>(i?'L':'M')+sx(p[0]).toFixed(1)+' '+sy(p[1]).toFixed(1)).join(' ');
+    if(s.fill) g+=`<path d="${d} L${sx(s.pts[s.pts.length-1][0]).toFixed(1)} ${H-B} L${sx(s.pts[0][0]).toFixed(1)} ${H-B} Z" style="fill:${s.fill};opacity:.16"/>`;
+    g+=`<path d="${d}" fill="none" style="stroke:${s.color}" stroke-width="${s.w||2.2}" ${s.dash?`stroke-dasharray="${s.dash}"`:''} stroke-linejoin="round"/>`;});
+  (extras&&extras.post||[]).forEach(e=>g+=e(sx,sy));
+  return `<svg viewBox="0 0 ${W} ${H}" role="img">${g}</svg>`;
+}
+
+/* ================= hero: lithography generations at one fixed scale ================= */
+/* highest published NA per generation: g-line (spieg), i-line and KrF (nikon), ArF dry (asml), immersion (immwiki), EUV (euvwiki, semieng) */
+const TOOLS=[
+ {id:'g',name:'g-line',src:'Mercury lamp',lam:436,NA:.54,ref:'photolitho,spieg'},
+ {id:'i',name:'i-line',src:'Mercury lamp',lam:365,NA:.63,ref:'photolitho,nikon'},
+ {id:'krf',name:'KrF',src:'Excimer laser',lam:248,NA:.82,ref:'photolitho,nikon'},
+ {id:'arf',name:'ArF dry',src:'Excimer laser',lam:193,NA:.93,ref:'photolitho,asml'},
+ {id:'arfi',name:'ArF immersion',src:'Excimer laser, water under the lens',lam:193,NA:1.35,ref:'immwiki,mack'},
+ {id:'euv',name:'EUV',src:'Tin-plasma source, mirror optics',lam:13.5,NA:.33,ref:'euvwiki,semieng'},
+ {id:'hna',name:'High-NA EUV',src:'Tin-plasma source, mirror optics',lam:13.5,NA:.55,ref:'euvwiki,semieng'}];
+
+/* ---------- references: numbered by first appearance, journal style ---------- */
+const REFS={
+ bornwolf:'M. Born and E. Wolf, <b>Principles of Optics</b>, 7th ed., Cambridge University Press (1999). Diffraction by a circular aperture: the Airy pattern [2J₁(v)/v]².',
+ evident:'Evident Scientific (Olympus), <b>“Rayleigh Disks,”</b> Microscopy Resource Center tutorial. Resolution d = 0.61 λ/NA; Sparrow limit 0.47 λ/NA. <a href="https://evidentscientific.com/en/microscope-resource/tutorials/imageformation/rayleighdisks" target="_blank" rel="noopener">evidentscientific.com/…/rayleighdisks</a>',
+ photolitho:'<b>“Photolithography,”</b> Wikipedia. Source lines g 436, i 365, KrF 248, ArF 193 nm; production k₁ ≈ 0.4; depth of focus ∝ 1/NA². <a href="https://en.wikipedia.org/wiki/Photolithography" target="_blank" rel="noopener">en.wikipedia.org/wiki/Photolithography</a>',
+ euvwiki:'<b>“Extreme ultraviolet lithography,”</b> Wikipedia. 13.5 nm light from a laser-pulsed tin plasma; all matter absorbs EUV, so reflective optics in vacuum; NA 0.33 (NXE) and 0.55 (EXE). <a href="https://en.wikipedia.org/wiki/Extreme_ultraviolet_lithography" target="_blank" rel="noopener">en.wikipedia.org/wiki/Extreme_ultraviolet_lithography</a>',
+ spieg:'<b>“G-line image reversal capabilities on a 0.54 NA …,”</b> Proc. SPIE 1262. g-line exposure at NA 0.54. <a href="https://doi.org/10.1117/12.20118" target="_blank" rel="noopener">doi.org/10.1117/12.20118</a>',
+ nikon:'Nikon Corporation, <b>Semiconductor lithography systems, product archive</b>. Highest NA: i-line 0.63 (NSR-2205i14E), KrF 0.82 (NSR-S210D). <a href="https://nikon.com/business/semi/lineup/archives" target="_blank" rel="noopener">nikon.com/business/semi/lineup/archives</a>',
+ asml:'ASML, <b>“TWINSCAN XT:1460K”</b> product page. Dry ArF (193 nm) scanner with a variable 0.65–0.93 NA lens. <a href="https://www.asml.com/en/products/duv-lithography-systems/twinscan-xt1460k" target="_blank" rel="noopener">asml.com/…/twinscan-xt1460k</a>',
+ immwiki:'<b>“Immersion lithography,”</b> Wikipedia. Water index 1.44 at 193 nm; a 1.35 NA tool at 193 nm resolves 36 nm. <a href="https://en.wikipedia.org/wiki/Immersion_lithography" target="_blank" rel="noopener">en.wikipedia.org/wiki/Immersion_lithography</a>',
+ semieng:'Semiconductor Engineering, <b>“Gearing Up For High-NA EUV.”</b> 0.33 NA scanners at 13.5 nm give 13 nm resolution; 0.55 NA gives 8 nm. <a href="https://semiengineering.com/gearing-up-for-high-na-euv" target="_blank" rel="noopener">semiengineering.com/gearing-up-for-high-na-euv</a>',
+ airywiki:'<b>“Airy disk,”</b> Wikipedia. 83.8% of the power falls inside the first dark ring (91.0% and 93.8% inside the second and third). <a href="https://en.wikipedia.org/wiki/Airy_disk" target="_blank" rel="noopener">en.wikipedia.org/wiki/Airy_disk</a>',
+ angres:'<b>“Angular resolution,”</b> Wikipedia. The factor 1.22 (more precisely 1.2197) is the first zero of J₁ divided by π; a 26.3% dip at Rayleigh’s criterion. <a href="https://en.wikipedia.org/wiki/Angular_resolution" target="_blank" rel="noopener">en.wikipedia.org/wiki/Angular_resolution</a>',
+ tektite:'Tektite Tutorials, <b>“Rayleigh Criterion: Resolving Two Nearby Point Sources.”</b> Midpoint intensity ≈ 0.735 of a single peak at the Rayleigh separation. <a href="https://tutorials.tektite.studio/diffraction-and-airy-disk/rayleigh-criterion/" target="_blank" rel="noopener">tutorials.tektite.studio/…/rayleigh-criterion</a>',
+ mack:'C. A. Mack, <b>“Lecture 48: Lithography: Resolution and Immersion,”</b> ChE 323 lecture notes. R = k₁λ/NA; the physical limit k₁ = 0.25 via two-beam imaging; water n = 1.436 at 193 nm; NA 1.35; dry NA ≈ 0.93. <a href="https://www.lithoguru.com/scientist/CHE323/Lecture48.pdf" target="_blank" rel="noopener">lithoguru.com/scientist/CHE323/Lecture48.pdf</a>',
+ goodman:'J. W. Goodman, <b>Introduction to Fourier Optics</b>, 3rd ed., Roberts &amp; Company (2005). Coherent and incoherent imaging; incoherent cut-off frequency 2NA/λ.',
+ katayama:'R. Katayama and Y. Komatsu, <b>“Blue/DVD/CD compatible optical head,”</b> Applied Optics 47(22), 4045–4054 (2008). Objective NA 0.85 (Blu-ray), 0.6 (DVD), 0.45 (CD). <a href="https://opg.optica.org/ao/abstract.cfm?uri=ao-47-22-4045" target="_blank" rel="noopener">opg.optica.org/ao/abstract.cfm?uri=ao-47-22-4045</a>',
+ samsung:'Samsung, <b>“What is the difference between Blu-ray Disc, DVD &amp; CD?”</b> DVD 650 nm, NA 0.6, 0.74 µm pitch, 4.7 GB; Blu-ray 405 nm, NA 0.85, 0.32 µm pitch, 25 GB. <a href="https://www.samsung.com/in/support/tv-audio-video/what-is-the-difference-between-blu-ray-disc-dvd-and-cd/" target="_blank" rel="noopener">samsung.com/…/what-is-the-difference-between-blu-ray-disc-dvd-and-cd</a>',
+ cdwiki:'<b>“Compact disc,”</b> Wikipedia. 780 nm laser; track pitch 1.6 µm; 650–700 MB. <a href="https://en.wikipedia.org/wiki/Compact_disc" target="_blank" rel="noopener">en.wikipedia.org/wiki/Compact_disc</a>'};
+const REFNUM={}; let REFORDER=[];
+function numberRefs(){
+  document.querySelectorAll('.cite[data-ref]').forEach(el=>el.dataset.ref.split(',').forEach(k=>{if(!(k in REFNUM)&&REFS[k]){REFORDER.push(k);REFNUM[k]=REFORDER.length;}}));
+  Object.keys(REFS).forEach(k=>{if(!(k in REFNUM)){REFORDER.push(k);REFNUM[k]=REFORDER.length;}});
+  document.querySelectorAll('.cite[data-ref]').forEach(el=>{el.innerHTML=citeHTML(el.dataset.ref);});
+  $('refList').innerHTML=REFORDER.map(k=>`<li id="ref-${REFNUM[k]}"><span class="n">(${REFNUM[k]})</span><span>${REFS[k]}</span></li>`).join('');
+}
+function citeHTML(keys){const ns=[...new Set(keys.split(',').map(k=>REFNUM[k]).filter(Boolean))].sort((a,b)=>a-b);
+  return ns.length?'('+ns.map(n=>`<a href="#ref-${n}" aria-label="Reference ${n}">${n}</a>`).join(', ')+')':'';}
+numberRefs();
+const HERO_VIEW=2000;
+let H_={i:0,lam:TOOLS[0].lam,NA:TOOLS[0].NA,playing:!reduce,seg:0,from:null,to:TOOLS[0],visible:true};
+function heroCard(){const r=R0(H_.lam,H_.NA),t=H_.to;
+  $('heroCard').innerHTML=`<div class="nm">${esc(t.name)}</div><div class="meta">${esc(t.src)}</div>
+   <div class="meta">λ ${fmtL(H_.lam)} · NA ${H_.NA.toFixed(2)}${H_.lam<380?' · false colour':''} <span class="cite">${citeHTML(t.ref)}</span></div>
+   <div class="big">Airy radius <b>${fmtL(r)}</b><br>Smallest half-pitch <b>${fmtL(.25*H_.lam/H_.NA)}</b></div>`;}
+function paintHero(){const cv=$('heroCv');fit(cv,640);renderPSF(cv,{lam:H_.lam,NA:H_.NA,view:HERO_VIEW,mode:'lin',ring:true});heroCard();}
+function heroGo(i,keepPlaying){H_.i=i;H_.from={lam:H_.lam,NA:H_.NA};H_.to=TOOLS[i];H_.seg=performance.now();
+  if(!keepPlaying){H_.playing=false;playIcon();}
+  $('gens').querySelectorAll('.chip').forEach((c,k)=>c.setAttribute('aria-pressed',String(k===i)));
+  if(reduce){H_.lam=H_.to.lam;H_.NA=H_.to.NA;H_.from=null;paintHero();}}
+function playIcon(){$('heroPlay').innerHTML=ICON(H_.playing?'pause':'play');$('heroPlay').setAttribute('aria-label',H_.playing?'Pause animation':'Play animation');}
+$('gens').innerHTML=TOOLS.map((t,i)=>`<button class="chip" data-i="${i}" aria-pressed="${i===0}">${ICON('check')}${esc(t.name)}</button>`).join('');
+$('gens').addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(b)heroGo(+b.dataset.i,false);});
+$('heroPlay').addEventListener('click',()=>{H_.playing=!H_.playing;playIcon();if(H_.playing)H_.seg=performance.now();});
+playIcon();
+const TWEEN=1500,HOLD=2300;
+function heroTick(now){
+  if(H_.from){const k=Math.min(1,(now-H_.seg)/TWEEN),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+    H_.lam=Math.exp(Math.log(H_.from.lam)+(Math.log(H_.to.lam)-Math.log(H_.from.lam))*e);
+    H_.NA=H_.from.NA+(H_.to.NA-H_.from.NA)*e; paintHero(); if(k>=1)H_.from=null;}
+  else if(H_.playing&&now-H_.seg>TWEEN+HOLD) heroGo((H_.i+1)%TOOLS.length,true);
+}
+
+/* ================= PSF explorer ================= */
+const EX={lam:550,F:5.6,imm:false,view:20000,mode:'log'};
+const lamU=l=>Math.round(1000*Math.log(l/10)/Math.log(110)), uLam=u=>10*Math.pow(110,u/1000);
+const Fmin=()=>EX.imm?.37:.5, FMAX=22;
+const fU=F=>Math.round(1000*Math.log(F/Fmin())/Math.log(FMAX/Fmin())), uF=u=>Fmin()*Math.pow(FMAX/Fmin(),u/1000);
+const LAMS=[[13.5,'EUV 13.5 nm'],[193,'ArF 193 nm'],[365,'i-line 365 nm'],[450,'Blue 450 nm'],[550,'Green 550 nm'],[650,'Red 650 nm'],[1064,'Nd:YAG 1064 nm']];
+const VIEWS=[[1000,'1 µm'],[5000,'5 µm'],[20000,'20 µm'],[100000,'100 µm']];
+$('exLamChips').innerHTML=LAMS.map(l=>`<button class="chip" data-lam="${l[0]}" aria-pressed="false">${ICON('check')}${esc(l[1])}</button>`).join('');
+$('exView').innerHTML=VIEWS.map(v=>`<button data-view="${v[0]}" aria-pressed="${v[0]===EX.view}">${ICON('check')}${esc(v[1])}</button>`).join('');
+$('exMode').innerHTML=[['lin','Linear'],['log','Log, shows rings']].map(m=>`<button data-mode="${m[0]}" aria-pressed="${m[0]===EX.mode}">${ICON('check')}${esc(m[1])}</button>`).join('');
+function syncSliders(){const a=$('exLam'),b=$('exF');a.value=lamU(EX.lam);b.value=fU(EX.F);
+  [a,b].forEach(el=>el.style.setProperty('--p',(el.value/10)+'%'));}
+function paintEx(){
+  const NA=1/(2*EX.F),r=R0(EX.lam,NA),cv=$('exCv');fit(cv,620);
+  renderPSF(cv,{lam:EX.lam,NA,view:EX.view,mode:EX.mode,ring:true});
+  $('exLamO').textContent=fmtL(EX.lam)+' · '+lamNote(EX.lam);$('exFO').textContent=fmtF(EX.F)+' · NA '+NA.toFixed(3);
+  $('exLamChips').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(Math.abs(+c.dataset.lam-EX.lam)<.6)));
+  const half=EX.view/2,N=801,pts=[];for(let i=0;i<N;i++){const x=-half+EX.view*i/(N-1);pts.push([x,Iv(2*Math.PI*NA*Math.abs(x)/EX.lam)]);}
+  const col=rgb(tint(EX.lam));
+  $('exPlot').innerHTML=plot(pw('exPlot',560),250,-half,half,1.08,[{pts,color:col,fill:col}],{post:[
+    (sx,sy)=>r<half?[-1,1].map(k=>`<line x1="${sx(k*r)}" y1="${sy(0)}" x2="${sx(k*r)}" y2="${sy(.62)}" style="stroke:var(--on-surface-variant)" stroke-dasharray="3 4"/>`).join('')+
+      (r>half*.55?`<text class="p-strong" x="${sx(r)-6}" y="${sy(.7)}" text-anchor="end">r = ${fmtL(r)}</text>`:`<text class="p-strong" x="${sx(r)+6}" y="${sy(.55)}">r = ${fmtL(r)}</text>`):`<text class="p-strong" x="${sx(0)}" y="${sy(.55)}" text-anchor="middle">Airy radius ${fmtL(r)} is wider than the view</text>`,
+    sx=>`<text class="p-txt" x="${sx(-half)}" y="242" text-anchor="start">−${fmtL(half)}</text><text class="p-txt" x="${sx(0)}" y="242" text-anchor="middle">0</text><text class="p-txt" x="${sx(half)}" y="242" text-anchor="end">${fmtL(half)}</text>`]});
+  const dof=EX.lam/(NA*NA);
+  $('exStats').innerHTML=[[fmtL(r),'Airy radius (first dark ring)'],[fmtL(.5145*EX.lam/NA),'Core width at half maximum'],
+    [NA.toFixed(3),'Numerical aperture, '+fmtF(EX.F)],[fmtL(dof),'Depth of focus ≈ λ/NA²']].map(s=>`<div class="st"><span>${esc(s[1])}</span><b>${esc(s[0])}</b></div>`).join('');
+  const ctx=r<120?'At this size you are in lithography territory: only ultraviolet light and very high NA get a spot this small.'
+    :r>2500?'That core is wider than a typical 2–5 µm camera pixel, so stopping this lens down further visibly softens the picture.'
+    :'Halve the wavelength or halve the F-number and the spot halves too.';
+  $('exIns').querySelector('p').innerHTML=`At ${fmtL(EX.lam)} and ${fmtF(EX.F)}, the bright core has a radius of <b>${fmtL(r)}</b> = 1.22 × λ × F/#. About 84% of the light sits inside it, whatever the settings. ${ctx}`;
+  syncSliders();
+  paintTP();
+}
+let sweep=0;
+function stopSweep(){if(sweep){cancelAnimationFrame(sweep);sweep=0;$('exSweep').innerHTML=ICON('wave')+'Animate through the visible spectrum';}}
+$('exLam').addEventListener('input',e=>{stopSweep();EX.lam=uLam(+e.target.value);paintEx();});
+$('exF').addEventListener('input',e=>{EX.F=uF(+e.target.value);paintEx();});
+$('exLamChips').addEventListener('click',e=>{const b=e.target.closest('[data-lam]');if(!b)return;stopSweep();EX.lam=+b.dataset.lam;paintEx();});
+$('exView').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(!b)return;EX.view=+b.dataset.view;$('exView').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));paintEx();});
+$('exMode').addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(!b)return;EX.mode=b.dataset.mode;$('exMode').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));paintEx();});
+$('exImm').addEventListener('click',e=>{e.preventDefault();EX.imm=!EX.imm;$('exImm').setAttribute('aria-checked',String(EX.imm));if(!EX.imm&&EX.F<.5)EX.F=.5;paintEx();});
+$('exSweep').addEventListener('click',()=>{
+  if(sweep){stopSweep();return;}
+  if(EX.view<5000){EX.view=20000;$('exView').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(+x.dataset.view===20000)));}
+  const t0=performance.now(),dur=reduce?1:8000;$('exSweep').innerHTML=ICON('pause')+'Stop';
+  const step=now=>{const k=Math.min(1,(now-t0)/dur);EX.lam=550-150*Math.cos(2*Math.PI*k);paintEx();if(k<1)sweep=requestAnimationFrame(step);else stopSweep();};
+  EX.lam=400;sweep=requestAnimationFrame(step);});
+
+/* ================= two points ================= */
+/* separation is stored in units of the 550 nm Airy radius, so it is a fixed physical distance while λ changes */
+const TP={sep:1,lam:650};
+const TP_PRE=[[700,'Red 700'],[650,'Red 650'],[550,'Green 550'],[450,'Blue 450'],[405,'Violet 405'],[365,'UV 365'],[266,'Deep UV 266']];
+$('tpLamChips').innerHTML=TP_PRE.map(p=>`<button class="chip" data-l="${p[0]}" aria-pressed="false">${ICON('check')}${p[1]} nm</button>`).join('');
+$('tpLamChips').addEventListener('click',e=>{const b=e.target.closest('.chip');if(b){TP.lam=+b.dataset.l;$('tpLam').value=TP.lam;paintTP();}});
+function paintTP(){
+  const NA=1/(2*EX.F),rRef=R0(550,NA),r=R0(TP.lam,NA),d=TP.sep*rRef,view=7*rRef,cv=$('tpCv');fit(cv,700);
+  const LAM=TP.lam;
+  renderPSF(cv,{lam:LAM,NA,view,mode:'lin',src:[[-d/2,0,1],[d/2,0,1]]});
+  const N=601,pts=[],a=[],b=[];let mx=0;
+  for(let i=0;i<N;i++){const x=-view/2+view*i/(N-1),i1=Iv(2*Math.PI*NA*Math.abs(x+d/2)/LAM),i2=Iv(2*Math.PI*NA*Math.abs(x-d/2)/LAM);
+    a.push([x,i1]);b.push([x,i2]);pts.push([x,i1+i2]);if(i1+i2>mx)mx=i1+i2;}
+  const mid=pts[(N-1)/2][1]/mx, norm=p=>p.map(q=>[q[0],q[1]/mx]);
+  const col=rgb(tint(LAM)),k=d/r;
+  $('tpPlot').innerHTML=plot(pw('tpPlot',560),250,-view/2,view/2,1.08,[{pts:norm(a),color:'var(--outline)',w:1.4,dash:'5 5'},{pts:norm(b),color:'var(--outline)',w:1.4,dash:'5 5'},{pts:norm(pts),color:col,fill:col,w:2.6}],
+    {post:[(sx,sy)=>mid<.995?`<line x1="${sx(-view*.33)}" y1="${sy(mid)}" x2="${sx(view*.33)}" y2="${sy(mid)}" style="stroke:var(--on-surface-variant)" stroke-dasharray="2 4"/><text class="p-strong" x="${sx(view/2)}" y="${sy(mid)-7}" text-anchor="end">dip to ${(mid*100).toFixed(1)}%</text>`:''
+      ,sx=>`<text class="p-txt" x="${sx(-view/2)}" y="242">−${fmtL(view/2)}</text><text class="p-txt" x="${sx(0)}" y="242" text-anchor="middle">0</text><text class="p-txt" x="${sx(view/2)}" y="242" text-anchor="end">+${fmtL(view/2)}</text>`]});
+  $('tpSepO').textContent=fmtL(d)+' · '+k.toFixed(2)+' Airy radii';$('tpSep').style.setProperty('--p',((TP.sep-.3)/1.9*100)+'%');
+  $('tpLamO').textContent=fmtL(LAM)+' · '+lamNote(LAM);$('tpLam').style.setProperty('--p',((LAM-250)/550*100)+'%');
+  document.querySelectorAll('#tpLamChips .chip').forEach(c=>c.setAttribute('aria-pressed',String(+c.dataset.l===LAM)));
+  const st=$('tpStatus');
+  if(k>=.995){st.className='status ok';st.innerHTML=ICON('check')+'Resolved (Rayleigh)';}
+  else if(mid<.995){st.className='status mid';st.innerHTML='Just distinguishable';}
+  else{st.className='status no';st.innerHTML=ICON('close')+'Looks like one point';}
+  const lamR=d*NA/0.60983;
+  $('tpAbs').textContent=`Airy radius ${fmtL(r)} at ${fmtL(LAM)}, ${fmtF(EX.F)}. Rayleigh-resolved at ${fmtL(lamR)} or shorter.`;
+  $('tpIns').querySelector('p').innerHTML=`The points sit ${fmtL(d)} apart, and at ${fmtL(LAM)} each blur has a ${fmtL(r)} radius, so they are <b>${k.toFixed(2)} Airy radii</b> apart.
+   At exactly one radius the middle drops to <b>73.5%</b> of the peaks: Rayleigh’s limit, 0.61 λ/NA. Below about 0.77 radii, Sparrow’s limit, the dip disappears.
+   ${k<.995?`Shorten the wavelength to ${fmtL(lamR)} or less and this pair is resolved.`:`You could go up to ${fmtL(lamR)} and still resolve them.`}`;
+}
+$('tpSep').addEventListener('input',e=>{TP.sep=+e.target.value;paintTP();});
+$('tpLam').addEventListener('input',e=>{TP.lam=+e.target.value;paintTP();});
+
+/* ================= lithography ================= */
+const LI={tool:'arfi',hp:40};
+const hpU=h=>Math.round(1000*Math.log(h/4)/Math.log(100)), uHp=u=>4*Math.pow(100,u/1000);
+$('liTools').innerHTML=TOOLS.map(t=>`<button class="chip" data-t="${t.id}" aria-pressed="${t.id===LI.tool}">${ICON('check')}${esc(t.name)}</button>`).join('');
+/* Ideal dipole illumination: each pole tilts the mask spectrum by 1/(2P); the diffraction orders that fit inside the pupil
+   (|m/P ∓ 1/(2P)| ≤ NA/λ) interfere coherently, and the two poles add incoherently. 50% line/space mask: a0 = ½, am = sin(πm/2)/(πm). */
+function aerial(lam,NA,hp){const P=2*hp,fc=NA/lam,f0=Math.min(1/(2*P),fc*.999),am=m=>m===0?.5:Math.sin(Math.PI*m/2)/(Math.PI*m);
+  const pole=s=>{const o=[];for(let m=-300;m<=300;m++){const fq=m/P+s*f0;if(Math.abs(fq)<=fc+1e-12&&Math.abs(am(m))>1e-9)o.push([am(m),fq]);}return o;};
+  const A=pole(-1),B=pole(1),N=480,pts=[];let mn=9,mx=-9,sum=0;
+  const inten=(O,x)=>{let re=0,im=0;for(const[a,fq]of O){const ph=2*Math.PI*fq*x;re+=a*Math.cos(ph);im+=a*Math.sin(ph);}return re*re+im*im;};
+  for(let i=0;i<N;i++){const x=3*P*i/(N-1),I=(inten(A,x)+inten(B,x))/2;pts.push([x,I]);sum+=I;if(I<mn)mn=I;if(I>mx)mx=I;}
+  const orders=new Set(A.map(o=>Math.round((o[1]+f0)*P))).size;
+  return {pts,P,thr:sum/N,orders,contrast:mx+mn>0?(mx-mn)/(mx+mn):0};}
+function paintLi(){
+  const t=TOOLS.find(x=>x.id===LI.tool),{lam,NA}=t,hp=LI.hp,k1=hp*NA/lam,A=aerial(lam,NA,hp),P=A.P,c=A.contrast;
+  $('liHp').value=hpU(hp);$('liHp').style.setProperty('--p',($('liHp').value/10)+'%');$('liHpO').textContent=fmtL(hp)+' lines and spaces';
+  const mask=[];for(let i=0;i<=6;i++){const x=i*P/2,v=i%2?1:0;mask.push([x,v]);mask.push([x+P/2,v]);}
+  const prints=c>=.05, th=A.thr;
+  $('liPlot').innerHTML=plot(pw('liPlot',560),290,0,3*P,1.15,[{pts:mask,color:'var(--outline)',w:1.3,dash:'5 5'},{pts:A.pts,color:'var(--primary)',fill:'var(--primary)',w:2.6}],{
+    post:[(sx,sy)=>`<line x1="${sx(0)}" y1="${sy(th)}" x2="${sx(3*P)}" y2="${sy(th)}" style="stroke:var(--tertiary)" stroke-dasharray="2 4"/>`,
+      (sx,sy)=>{let o='';const y=268;if(prints){let on=null;A.pts.forEach((p,i)=>{const dark=p[1]<th;if(dark&&on===null)on=p[0];if((!dark||i===A.pts.length-1)&&on!==null){o+=`<rect x="${sx(on)}" y="${y}" width="${Math.max(1,sx(p[0])-sx(on))}" height="12" rx="2" style="fill:var(--on-surface)"/>`;on=null;}});}
+        else o+=`<rect x="${sx(0)}" y="${y}" width="${sx(3*P)-sx(0)}" height="12" rx="2" style="fill:var(--outline-variant)"/><text class="p-strong" x="${sx(1.5*P)}" y="${y-6}" text-anchor="middle">${c<.005?'no pattern reaches the wafer':'too little contrast to print'}</text>`;
+        return o+`<text class="p-txt" x="${sx(0)-6}" y="${y+10}" text-anchor="end">resist</text>`;}]});
+  $('liStats').innerHTML=[[k1.toFixed(3),'k₁ = half-pitch × NA / λ',k1<.25?'bad':''],[(c*100).toFixed(1)+'%','Image contrast',c<.05?'bad':c>.5?'good':''],
+    [k1<.25?'1':String(A.orders),'Diffraction orders through the lens',k1<.25?'bad':''],[fmtL(.25*lam/NA),'Smallest half-pitch, this tool']].map(s=>`<div class="st ${s[2]||''}"><span>${esc(s[1])}</span><b>${esc(s[0])}</b></div>`).join('');
+  const ins=$('liIns');
+  ins.classList.toggle('alert',k1<.25);
+  ins.querySelector('.badge').innerHTML=ICON(k1<.25?'warn':'bulb');
+  ins.querySelector('p').innerHTML=k1<.25?`k₁ is <b>${k1.toFixed(3)}</b>, below 0.25. The line pattern’s frequency 1/pitch is beyond the lens cut-off 2NA/λ, so no light pattern reaches the wafer at all. You need a shorter wavelength or a higher NA: try ${t.lam>20?'EUV':'a wider half-pitch'}.`
+    :A.orders<=2?`Only two diffraction orders fit through the lens, so the image is a pure sine wave with ${(c*100).toFixed(0)}% contrast. This is how the densest lines are printed: tilted (dipole) illumination puts both orders just inside the pupil edge, right down to k₁ = 0.25.`
+    :`${A.orders} diffraction orders pass the lens, so the lines get sharper edges and ${(c*100).toFixed(0)}% contrast. Shrink the half-pitch and watch the orders drop out one by one.`;
+  const cw=$('liChart').clientWidth||1040,cmp=cw<640,W=cmp?Math.max(300,Math.round(cw)):Math.min(1040,Math.round(cw)),rows=TOOLS.length,rh=cmp?42:34,H=rows*rh+44,
+    L=cmp?96:150,R=cmp?W-58:W-190,lx=v=>L+(Math.log(v)-Math.log(4))/(Math.log(400)-Math.log(4))*(R-L);
+  let g='';(cmp?[5,20,100]:[5,10,20,50,100,200]).forEach(v=>g+=`<line class="p-grid" x1="${lx(v)}" y1="8" x2="${lx(v)}" y2="${H-30}"/><text class="p-txt" x="${lx(v)}" y="${H-12}" text-anchor="middle">${v} nm</text>`);
+  TOOLS.forEach((tt,i)=>{const m=.25*tt.lam/tt.NA,y=10+i*rh,on=tt.id===LI.tool;
+    g+=`<g style="cursor:pointer" data-t="${tt.id}"><text class="${on?'p-strong':'p-txt'}" x="${L-10}" y="${y+18}" text-anchor="end">${esc(cmp?({arfi:'ArF immers.',hna:'High-NA EUV'}[tt.id]||tt.name):tt.name)}</text>
+      <rect x="${L}" y="${y+4}" width="${Math.max(2,lx(m)-L)}" height="20" rx="10" style="fill:${on?'var(--primary)':'var(--secondary-container)'}"/>
+      <text class="${on?'p-strong':'p-txt'}" x="${lx(m)+8}" y="${y+18}">${fmtL(m)}</text>
+      ${cmp?`<text class="p-txt" x="${L-10}" y="${y+33}" text-anchor="end" style="font-size:10.5px">DOF ${fmtL(tt.lam/(tt.NA*tt.NA))}</text>`
+           :`<text class="p-txt" x="${W-8}" y="${y+18}" text-anchor="end">DOF ${fmtL(tt.lam/(tt.NA*tt.NA))}</text>`}</g>`;});
+  g+=`<line x1="${lx(hp)}" y1="6" x2="${lx(hp)}" y2="${H-30}" style="stroke:var(--tertiary)" stroke-width="2" stroke-dasharray="4 3"/><text class="p-strong" x="${lx(hp)}" y="${H-32}" text-anchor="middle" style="fill:var(--tertiary)">your ${fmtL(hp)}</text>`;
+  $('liChart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img">${g}</svg>`;
+  $('liTools').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String(c.dataset.t===LI.tool)));
+}
+$('liTools').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b){LI.tool=b.dataset.t;paintLi();}});
+$('liChart').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b){LI.tool=b.dataset.t;paintLi();}});
+$('liHp').addEventListener('input',e=>{LI.hp=uHp(+e.target.value);paintLi();});
+
+/* ================= optical discs ================= */
+const DISCS=[{n:'CD',lam:780,NA:.45,pitch:1600,cap:'about 0.7 GB'},{n:'DVD',lam:650,NA:.60,pitch:740,cap:'4.7 GB per layer'},{n:'Blu-ray',lam:405,NA:.85,pitch:320,cap:'25 GB per layer'}];
+$('discRow').innerHTML=DISCS.map((d,i)=>`<div class="disc"><div class="view" style="--ar:1"><canvas id="dc${i}" aria-label="${esc(d.n)} laser spot"></canvas></div>
+  <div class="cap"><b>${esc(d.n)}</b><p>λ ${d.lam} nm · NA ${d.NA.toFixed(2)} · Airy radius ${fmtL(R0(d.lam,d.NA))}<br>Track spacing ${fmtL(d.pitch)} · ${esc(d.cap)}</p></div></div>`).join('');
+function paintDiscs(){DISCS.forEach((d,i)=>{const cv=$('dc'+i);fit(cv,420);
+  renderPSF(cv,{lam:d.lam,NA:d.NA,view:4000,mode:'lin',ring:true,overlay:(ctx,W,H,nmpp,px)=>{ctx.save();ctx.setLineDash([6*px,6*px]);ctx.lineWidth=1.2*px;
+    ctx.strokeStyle=THEME==='dark'?'rgba(255,255,255,.35)':'rgba(25,28,32,.35)';for(let k=-3;k<=3;k++){const y=H/2+k*d.pitch/nmpp;if(y<0||y>H)continue;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}ctx.restore();}});});}
+
+/* ================= wiring ================= */
+function repaintAll(){paintHero();paintEx();paintLi();paintDiscs();}
+window._ready=true;repaintAll();
+const vis=new IntersectionObserver(es=>es.forEach(en=>{if(en.target.id==='heroView')H_.visible=en.isIntersecting;}),{threshold:.1});
+vis.observe($('heroView'));
+H_.seg=performance.now();
+(function loop(now){requestAnimationFrame(loop);if(document.hidden||!H_.visible)return;heroTick(now);})(performance.now());
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(repaintAll,150);});
+document.querySelectorAll('.btn,.segbtn button,.chip').forEach(b=>b.classList.add('sl'));
+document.querySelectorAll('.cp').forEach(b=>b.addEventListener('click',async()=>{const t=b.dataset.copy;
+  try{await navigator.clipboard.writeText(t);b.textContent='Copied';}catch(_){const s=b.previousElementSibling,r=document.createRange();r.selectNodeContents(s);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);b.textContent='Selected';}
+  setTimeout(()=>b.textContent='Copy',1600);}));
+const navIO=new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting)return;document.querySelectorAll('.tabs a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+en.target.id));}),{rootMargin:'-35% 0px -60% 0px'});
+['explorer','twopoint','litho','discs','refs'].forEach(i=>navIO.observe($(i)));
+addEventListener('scroll',()=>{$('hdr').classList.toggle('lift',scrollY>8);$('fab').classList.toggle('show',scrollY>900);},{passive:true});
+$('fab').addEventListener('click',()=>scrollTo({top:0,behavior:reduce?'auto':'smooth'}));
+</script>
+
+</body>
+</html>
