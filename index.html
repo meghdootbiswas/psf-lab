@@ -3,8 +3,67 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Interactive explainer: how wavelength, F-number and NA set the point spread function, the Airy disk and the resolution limit, from microscopes to EUV lithography.">
+<title>Point Spread Function &amp; Airy Disk Simulator | PSF Lab</title>
+<meta name="description" content="Interactive point spread function (PSF) and Airy disk simulator: how wavelength and NA set the diffraction limit, the Rayleigh criterion and EUV lithography.">
+<meta name="keywords" content="point spread function, PSF, Airy disk, Airy pattern, diffraction limit, Rayleigh criterion, numerical aperture, optics, lithography, EUV, resolution">
 <meta name="author" content="Meghdoot Biswas">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://meghdootbiswas.github.io/psf-lab/">
+<meta name="theme-color" content="#3f5f90">
+
+<!-- link previews (LinkedIn, Slack, X, WhatsApp) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PSF Lab">
+<meta property="og:title" content="Point Spread Function &amp; Airy Disk Simulator">
+<meta property="og:description" content="Interactive optics simulator: how wavelength and NA set the Airy disk, the Rayleigh limit and the smallest line a chip scanner can print.">
+<meta property="og:url" content="https://meghdootbiswas.github.io/psf-lab/">
+<meta property="og:image" content="https://meghdootbiswas.github.io/psf-lab/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Airy diffraction pattern with its bright core and rings">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Point Spread Function &amp; Airy Disk Simulator">
+<meta name="twitter:description" content="How wavelength and NA set the diffraction limit, from microscopes to EUV lithography.">
+<meta name="twitter:image" content="https://meghdootbiswas.github.io/psf-lab/preview.png">
+
+<!-- structured data: tells search engines and AI assistants what this page is and who made it -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://meghdootbiswas.github.io/psf-lab/#app",
+      "name": "PSF Lab: Point Spread Function & Airy Disk Simulator",
+      "url": "https://meghdootbiswas.github.io/psf-lab/",
+      "image": "https://meghdootbiswas.github.io/psf-lab/preview.png",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Any (runs in the browser)",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "description": "Interactive simulator of the point spread function, the Airy disk, the Rayleigh criterion and diffraction-limited resolution in microscopy, optical discs and photolithography.",
+      "about": ["Point spread function", "Airy disk", "Rayleigh criterion", "Diffraction limit", "Numerical aperture", "Photolithography", "Extreme ultraviolet lithography"],
+      "educationalLevel": "Undergraduate",
+      "learningResourceType": "Interactive simulation",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@id": "https://meghdootbiswas.github.io/psf-lab/#author" }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://meghdootbiswas.github.io/psf-lab/#author",
+      "name": "Meghdoot Biswas",
+      "jobTitle": "PhD Student, Optical Sciences",
+      "email": "meghdoot@arizona.edu",
+      "affiliation": {
+        "@type": "CollegeOrUniversity",
+        "name": "Wyant College of Optical Sciences, The University of Arizona",
+        "address": { "@type": "PostalAddress", "addressLocality": "Tucson", "addressRegion": "AZ", "addressCountry": "US" }
+      },
+      "sameAs": ["https://www.linkedin.com/in/meghdootbiswas/"]
+    }
+  ]
+}
+</script>
 
 <!-- Google Analytics (GA4): replace G-W1TF03952F with your Measurement ID in BOTH places below -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-W1TF03952F"></script>
@@ -15,7 +74,6 @@
   gtag('config', 'G-W1TF03952F');
 </script>
 
-<title>PSF Lab</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,300..700&family=Roboto+Mono:wght@400;500&display=swap">
 <style>
 /* Material 3 scheme generated from a blue seed (#3F5F90 family). Light is the base; dark mirrors it.
@@ -375,6 +433,9 @@ footer b{color:var(--on-surface);font-weight:500}
 .fact{background:var(--surface-high);border-radius:16px;padding:16px;transition:background-color .4s var(--emph)}
 .fact h3{font-size:16px;line-height:24px;font-weight:500}
 .fact p{font-size:14px;line-height:20px;color:var(--on-surface-variant);margin-top:4px}
+.facts.faq{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:760px){.facts.faq{grid-template-columns:minmax(0,1fr)}}
+.fact p a:not(.cite a){color:var(--primary);font-weight:500}
 .cite{white-space:nowrap;margin-left:.25em;color:var(--primary);font-size:.92em}
 .cite a{color:var(--primary);text-decoration:none;font-weight:600}
 .cite a:hover{text-decoration:underline}
@@ -504,7 +565,7 @@ html:root[data-ui="light"]{--psf-bg:#ffffff}
     </div>
   </div>
   <div class="wrap"><nav class="tabs" aria-label="Sections">
-    <a href="#explorer">PSF explorer</a><a href="#twopoint">Two points</a><a href="#litho">Lithography</a><a href="#discs">CD, DVD, Blu-ray</a><a href="#refs">References</a></nav></div>
+    <a href="#explorer">PSF explorer</a><a href="#twopoint">Two points</a><a href="#litho">Lithography</a><a href="#discs">CD, DVD, Blu-ray</a><a href="#faq">FAQ</a><a href="#refs">References</a></nav></div>
 </header>
 
 <main id="top">
@@ -512,8 +573,8 @@ html:root[data-ui="light"]{--psf-bg:#ffffff}
     <div class="wrap grid">
       <div>
         <h1 class="display">Why chips are printed with ultraviolet light</h1>
-        <p class="body-l muted" style="margin-top:18px;max-width:48ch">A lens can’t focus light to a point. It makes a small blur, the point spread function, whose
-          bright core has radius <span class="formula">r = 0.61 λ / NA</span><span class="cite" data-ref="bornwolf,evident"></span>. To draw finer lines you need a shorter wavelength λ,
+        <p class="body-l muted" style="margin-top:18px;max-width:48ch">A lens can’t focus light to a point. It makes a small blur, the point spread function (PSF). For a perfect circular lens this blur is the Airy pattern, whose
+          bright core, the Airy disk, has radius <span class="formula">r = 0.61 λ / NA</span><span class="cite" data-ref="bornwolf,evident"></span>. To draw finer lines you need a shorter wavelength λ,
           a larger numerical aperture NA, or both. The animation shows every generation of chip-making light at the same 2 µm scale.</p>
         <div class="acts" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px">
           <a class="btn filled" href="#explorer">Try the PSF explorer</a>
@@ -522,7 +583,7 @@ html:root[data-ui="light"]{--psf-bg:#ffffff}
       </div>
       <div>
         <div class="view" id="heroView" style="--ar:1.25">
-          <canvas id="heroCv" aria-label="Animated point spread function for each lithography generation, drawn at a fixed 2 micrometre scale"></canvas>
+          <canvas id="heroCv" role="img" aria-label="Animated point spread function for each lithography generation, drawn at a fixed 2 micrometre scale"></canvas>
           <div class="overlay">
             <div class="tcard" id="heroCard"></div>
             <button class="iconbtn" id="heroPlay" aria-label="Pause animation"><svg class="ic"><use href="#i-pause"/></svg></button>
@@ -536,11 +597,11 @@ html:root[data-ui="light"]{--psf-bg:#ffffff}
 
   <section class="section" id="explorer" style="scroll-margin-top:64px">
     <div class="wrap"><article class="card pcard">
-      <h2 class="headline-l">PSF explorer</h2>
+      <h2 class="headline-l">Point spread function explorer: the Airy disk vs wavelength and F-number</h2>
       <p class="lead body-l">Change the wavelength and the F-number. The picture keeps a fixed size, so the spot really grows and shrinks.
         About 84% of the light always lands inside the first dark ring<span class="cite" data-ref="airywiki"></span>; only the ring’s size changes. Depth of focus is estimated as λ/NA²<span class="cite" data-ref="photolitho"></span>.</p>
       <div class="two">
-        <div class="view" style="--ar:1"><canvas id="exCv" aria-label="Point spread function image"></canvas></div>
+        <div class="view" style="--ar:1"><canvas id="exCv" role="img" aria-label="Airy pattern: image of the point spread function for the chosen wavelength and F-number"></canvas></div>
         <div>
           <div class="plot"><div class="cap">Intensity across the centre</div><div id="exPlot"></div></div>
           <div class="stats" id="exStats" style="grid-template-columns:repeat(2,minmax(0,1fr))"></div>
@@ -561,7 +622,7 @@ html:root[data-ui="light"]{--psf-bg:#ffffff}
 
   <section class="section" id="twopoint" style="scroll-margin-top:64px">
     <div class="wrap"><article class="card pcard">
-      <h2 class="headline-l">When can you tell two points apart?</h2>
+      <h2 class="headline-l">The Rayleigh criterion: when can you tell two points apart?</h2>
       <p class="lead body-l">Two equally bright points, each blurred into its own PSF. Lord Rayleigh’s rule: they are resolved when one
         peak sits on the other’s first dark ring, a separation of exactly one Airy radius<span class="cite" data-ref="evident,angres"></span>. Here the two points stay put while you change the wavelength:
         shorter light shrinks each blur until the pair splits apart. The F-number follows the explorer above.</p>
@@ -582,7 +643,7 @@ html:root[data-ui="light"]{--psf-bg:#ffffff}
 
   <section class="section" id="litho" style="scroll-margin-top:64px">
     <div class="wrap"><article class="card pcard">
-      <h2 class="headline-l">Printing lines on a chip</h2>
+      <h2 class="headline-l">Lithography resolution: printing lines on a chip</h2>
       <p class="lead body-l">A scanner images a mask of lines onto a light-sensitive resist. The finest half-pitch it can print is
         <span class="formula">CD = k₁ · λ / NA</span><span class="cite" data-ref="mack,photolitho"></span>. Physics stops k₁ at 0.25<span class="cite" data-ref="mack"></span>: below that, the line pattern is finer than the
         lens can pass, and the image on the wafer is perfectly flat grey. So the industry shortened λ and pushed NA up, generation after generation.</p>
@@ -610,12 +671,53 @@ html:root[data-ui="light"]{--psf-bg:#ffffff}
 
   <section class="section" id="discs" style="scroll-margin-top:64px">
     <div class="wrap"><article class="card pcard">
-      <h2 class="headline-l">The same physics in your living room</h2>
+      <h2 class="headline-l">CD, DVD and Blu-ray: the same physics in your living room</h2>
       <p class="lead body-l">CD, DVD and Blu-ray store data in spiral tracks read by a focused laser spot. A smaller spot allows tighter tracks, so each
         generation used a shorter wavelength and a higher NA<span class="cite" data-ref="katayama,samsung,cdwiki"></span>. All three are drawn at the same 4 µm scale, with the track spacing dashed.</p>
       <div class="discs" id="discRow"></div>
       <p class="body-m muted" style="margin-top:16px">Microscopes hit the same wall: with oil immersion (NA 1.4) and green light (550 nm), the Airy radius is about 240 nm,
         which is why ordinary light microscopes can’t resolve finer detail without super-resolution tricks<span class="cite" data-ref="evident"></span>.</p>
+    </article></div>
+  </section>
+
+  <section class="section" id="faq" style="scroll-margin-top:64px">
+    <div class="wrap"><article class="card pcard">
+      <h2 class="headline-l">Point spread function and Airy disk: frequently asked questions</h2>
+      <p class="lead body-l">Short answers to the questions this page is built around. Each one links back to the interactive section that shows it.</p>
+      <div class="facts faq">
+        <div class="fact">
+          <h3>What is a point spread function (PSF)?</h3>
+          <p>The point spread function is the image an optical system makes of a single point of light. No lens can focus light to a true point, because light diffracts at the edge of the aperture, so the point is spread into a small blur. Every image is the scene blurred by this PSF, so its size sets the finest detail a camera, telescope or microscope can show<span class="cite" data-ref="bornwolf,goodman"></span>. <a href="#explorer">Explore the PSF</a>.</p>
+        </div>
+        <div class="fact">
+          <h3>What is the Airy disk, and what is the Airy pattern?</h3>
+          <p>For a perfect lens with a circular aperture the PSF is the Airy pattern, intensity [2J₁(v)/v]²: a bright central spot surrounded by fainter rings. The central spot, out to the first dark ring, is the Airy disk. It holds about 84% of the light<span class="cite" data-ref="bornwolf,airywiki"></span>. Switch the explorer to its log scale to see the rings.</p>
+        </div>
+        <div class="fact">
+          <h3>How do you calculate the Airy disk radius?</h3>
+          <p>The radius to the first dark ring is <span class="formula">r = 0.61 λ / NA = 1.22 λ · F/#</span>, where λ is the wavelength and NA the numerical aperture<span class="cite" data-ref="evident,angres"></span>. Green light (550 nm) at f/1, NA 0.5, gives r ≈ 670 nm. The full width at half maximum of the core is about 0.51 λ/NA.</p>
+        </div>
+        <div class="fact">
+          <h3>What is the Rayleigh criterion?</h3>
+          <p>Two equally bright points are just resolved when the peak of one falls on the first dark ring of the other, a separation of 0.61 λ/NA. The intensity between them then dips to about 73.5% of the peaks<span class="cite" data-ref="evident,tektite"></span>. Sparrow’s stricter limit, 0.47 λ/NA, is where the dip vanishes. <a href="#twopoint">Try two points</a>.</p>
+        </div>
+        <div class="fact">
+          <h3>What limits the resolution of a light microscope?</h3>
+          <p>Diffraction. With an oil-immersion objective (NA 1.4) and green light, the Airy radius is about 240 nm, so finer structure blurs together. Going further needs super-resolution methods that break the assumptions behind the diffraction limit<span class="cite" data-ref="evident"></span>.</p>
+        </div>
+        <div class="fact">
+          <h3>Why does EUV lithography use 13.5 nm light?</h3>
+          <p>The smallest printable half-pitch is <span class="formula">k₁ · λ / NA</span>, with k₁ no lower than 0.25. Once water immersion pushed ArF scanners to NA 1.35, about 36 nm, the only big step left was a much shorter wavelength. A tin plasma emits strongly at 13.5 nm, where multilayer mirrors reflect well, so EUV scanners reach about 10 nm at NA 0.33<span class="cite" data-ref="mack,euvwiki,immwiki"></span>. <a href="#litho">See every generation</a>.</p>
+        </div>
+        <div class="fact">
+          <h3>Why does Blu-ray use a blue laser?</h3>
+          <p>A shorter wavelength and a higher NA make a smaller spot, and a smaller spot can read tighter tracks. CD uses 780 nm at NA 0.45, DVD 650 nm at NA 0.6, and Blu-ray 405 nm violet-blue light at NA 0.85. Its spot is about 3.6 times narrower than a CD’s, which is why one layer holds 25 GB instead of 0.7 GB<span class="cite" data-ref="katayama,samsung,cdwiki"></span>. <a href="#discs">Compare the three spots</a>.</p>
+        </div>
+        <div class="fact">
+          <h3>How does depth of focus depend on numerical aperture?</h3>
+          <p>Depth of focus scales roughly as λ/NA², so it shrinks much faster than resolution improves as NA rises. That is why high-NA lithography needs extremely flat wafers, and why fast lenses have shallow focus<span class="cite" data-ref="photolitho"></span>.</p>
+        </div>
+      </div>
     </article></div>
   </section>
 </main>
@@ -993,7 +1095,7 @@ document.querySelectorAll('.cp').forEach(b=>b.addEventListener('click',async()=>
   try{await navigator.clipboard.writeText(t);b.textContent='Copied';}catch(_){const s=b.previousElementSibling,r=document.createRange();r.selectNodeContents(s);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);b.textContent='Selected';}
   setTimeout(()=>b.textContent='Copy',1600);}));
 const navIO=new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting)return;document.querySelectorAll('.tabs a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+en.target.id));}),{rootMargin:'-35% 0px -60% 0px'});
-['explorer','twopoint','litho','discs','refs'].forEach(i=>navIO.observe($(i)));
+['explorer','twopoint','litho','discs','faq','refs'].forEach(i=>navIO.observe($(i)));
 addEventListener('scroll',()=>{$('hdr').classList.toggle('lift',scrollY>8);$('fab').classList.toggle('show',scrollY>900);},{passive:true});
 $('fab').addEventListener('click',()=>scrollTo({top:0,behavior:reduce?'auto':'smooth'}));
 </script>
